@@ -1,0 +1,3794 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CCFA 合併題庫 243 題｜2026-09-23</title>
+<style>
+  :root { --bg:#0b1020; --fg:#e7ebff; --card:#141a33; --muted:#99a2d0; --accent:#6aa0ff; }
+  body { margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,Noto Sans,'Apple Color Emoji','Segoe UI Emoji'; background:var(--bg); color:var(--fg); }
+  header { padding:18px 20px; border-bottom:1px solid #1f2748; position:sticky; top:0; background:linear-gradient(#0b1020,#0b1020cc); backdrop-filter: blur(4px); z-index:10; }
+  h1 { font-size:20px; margin:0 0 6px 0; }
+  .muted { color: var(--muted); }
+  main { max-width: 1100px; margin: 24px auto; padding: 0 16px 40px; }
+  .toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
+  .toolbar > * { background: var(--card); border: 1px solid #1f2748; color: var(--fg); border-radius: 10px; padding:10px 12px; }
+  select, input { outline:none; }
+  button { cursor:pointer; transition: all .2s ease; }
+  button:hover { transform: translateY(-1px); box-shadow: 0 4px 18px rgba(0,0,0,.25); }
+  .card { background: var(--card); border:1px solid #1f2748; border-radius: 16px; padding:16px; margin:10px 0 18px; }
+  .qhead { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:8px; }
+  .qid { font-weight:600; color:#cfd6ff; }
+  .qstats { font-size:12px; color:#9ab0ff; }
+  .qtxt { font-size:18px; line-height:1.45; white-space:pre-wrap; }
+  .choices { display:grid; grid-template-columns:1fr; gap:8px; margin-top:10px; }
+  .choice { border:1px solid #2a345f; border-radius:12px; padding:10px; cursor:pointer; }
+  .choice.selected { border-color: var(--accent); background: #0d1530; }
+  .choice.correct { border-color: #42cd7f; background: #0f2a1a; }
+  .choice.wrong { border-color: #ff6b6b; background: #2a1111; }
+  .choice.locked { opacity: .7; cursor: not-allowed; }
+  .row { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+  .pill { background:#0f1a3a; border:1px solid #2a345f; border-radius:999px; padding:6px 10px; font-size:12px; color:#cfd6ff; }
+  .footer { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .btn { background: #203162; border:1px solid #40549b; color:white; border-radius:10px; padding:10px 14px; cursor:pointer; }
+  .btn.secondary { background: transparent; border-color:#334279; color:#cfd6ff; }
+  .btn.review { background:#2a2142; border-color:#7e5bef; }
+  .btn.review.active { background:#3b2f6b; border-color:#a58bff; box-shadow: 0 0 0 2px rgba(165,139,255,.25) inset; }
+  .btn.disabled { opacity: .5; cursor: not-allowed; }
+  .danger { background:#3a1620; border-color:#a33; }
+  .scoreBanner { background:#0f1a3a; border:1px solid #2a345f; border-radius:14px; padding:10px 12px; margin:10px 0; font-weight:600; }
+  .searchBox { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .searchInput { width:240px; }
+  .hidden { display:none; }
+  .summary { display:flex; flex-direction:column; gap:6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>CCFA-200 測驗 <span class="muted">— 243 題合併題庫</span></h1>
+  <div class="muted">原題庫 #1–152 ＋ CCFA_200b 新增 #153–243；新題答案依 PDF 標示收錄。</div>
+  <div class="muted" id="hdrMeta"></div>
+</header>
+<main>
+  <section class="card">
+    <div class="row">
+      <div class="toolbar">
+        <label>模式
+          <select id="mode">
+            <option value="exam">Exam（考試模式）</option>
+            <option value="review_list">Review List（複習清單：隨機）</option>
+            <option value="review_list_all">Review List（複習清單：全部）</option>
+            <option value="search">Search（關鍵字找題）</option>
+          </select>
+        </label>
+        <label id="countWrap">題數
+          <select id="count">
+            <option>5</option>
+            <option>10</option>
+            <option selected>20</option>
+            <option>50</option>
+            <option>100</option>
+            <option value="243">全部 243 題</option>
+          </select>
+        </label>
+        <label id="rangeWrap">題號範圍
+          <input id="rangeFrom" type="number" min="1" placeholder="起(如50)" style="width:90px" />
+          <span>—</span>
+          <input id="rangeTo" type="number" min="1" placeholder="迄(如100)" style="width:90px" />
+        </label>
+        <div class="searchBox" id="searchWrap">
+          <input id="searchInput" class="searchInput" type="text" placeholder="關鍵字（多字詞以空白分隔）">
+          <button class="btn secondary" id="searchBtn">搜尋</button>
+          <button class="btn secondary" id="clearSearchBtn">清除</button>
+        </div>
+        <label><input type="checkbox" id="toggleOriginal"> 顯示原始題號</label>
+        <button class="btn" id="startBtn">開始</button>
+        <button class="btn secondary" id="resetBtn">重置複習清單/統計</button>
+      </div>
+      <div class="row">
+        <div class="scoreBanner hidden" id="scoreBanner"></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="quiz"></div>
+
+  <section class="card hidden" id="footerCard">
+    <div class="footer">
+      <div>
+        <button class="btn" id="prevBtn">上一題（←）</button>
+        <button class="btn" id="confirmBtn">確認（Enter）</button>
+        <button class="btn" id="nextBtn">下一題（→）</button>
+        <button class="btn review" id="toggleReviewBtn">加入/移出複習清單（5）</button>
+      </div>
+      <div>
+        <button class="btn" id="submitBtn">交卷（列出本次全部題）</button>
+        <button class="btn secondary" id="exportReviewBtn">匯出複習清單ID</button>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+const BANK = [
+  {
+    "id": 1,
+    "question": "An analyst has reported they are not receiving workflow triggered notifications in the past few days. Where should you first check for potential failures?",
+    "choices": [
+      "Custom Alert History",
+      "Workflow Execution log",
+      "Workflow Audit log",
+      "Falcon UI Audit Trail"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 2,
+    "question": "How are user permissions set in Falcon?",
+    "choices": [
+      "Permissions are assigned to a User Group and then users are assigned to that group, thereby inheriting those permissions",
+      "Pre-defined permissions are assigned to sets called roles. Users can be assigned multiple roles based on job function and they assume a cumulative set of permissions based on those assignments",
+      "An administrator selects individual granular permissions from the Falcon Permissions List during user creation",
+      "Permissions are token-based. Users request access to a defined set of permissions and an administrator adds their token to the set of permissions"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 3,
+    "question": "When creating new IOCs in IOC management, which of the following fields must be configured?",
+    "choices": [
+      "Hash, Description, Filename",
+      "Hash, Action and Expiry Date",
+      "Filename, Severity and Expiry Date",
+      "Hash, Platform and Action"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 4,
+    "question": "Your organization has a set of servers that are not allowed to be accessed remotely, including via Real Time Response (RTR). You already have these servers in their own Falcon host group. What is the next step to disable RTR only on these hosts?",
+    "choices": [
+      "Edit the Default Response Policy, toggle the \"Real Time Response\" switch off and assign the policy to the host group",
+      "Edit the Default Response Policy and add the host group to the exceptions list under \"Real Time Functionality\"",
+      "Create a new Response Policy, toggle the \"Real Time Response\" switch off and assign the policy to the host group",
+      "Create a new Response Policy and add the host name to the exceptions list under \"Real Time Functionality\""
+    ],
+    "answer": 2
+  },
+  {
+    "id": 5,
+    "question": "Which exclusion pattern will prevent detections on a file at C:\\Program Files\\My Program\\My Files\\program.exe?",
+    "choices": [
+      "\\Program Files\\My Program\\My Files\\*",
+      "\\Program Files\\My Program\\*",
+      "*\\*",
+      "*\\Program Files\\My Program\\*\\"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 6,
+    "question": "Once an exclusion is saved, what can be edited in the future?",
+    "choices": [
+      "All parts of the exclusion can be changed",
+      "Only the selected groups and hosts to which the exclusion is applied can be changed",
+      "Only the options to \"Detect/Block\" and/or \"File Extraction\" can be changed",
+      "The exclusion pattern cannot be changed"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 7,
+    "question": "Why is the ability to disable detections helpful?",
+    "choices": [
+      "It gives users the ability to set up hosts to test detections and later remove them from the console",
+      "It gives users the ability to uninstall the sensor from a host",
+      "It gives users the ability to allowlist a false positive detection",
+      "It gives users the ability to remove all data from hosts that have been uninstalled"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 8,
+    "question": "What impact does disabling detections on a host have on an API?",
+    "choices": [
+      "Endpoints with detections disabled will not alert on anything until detections are enabled again",
+      "Endpoints cannot have their detections disabled individually",
+      "DetectionSummaryEvent stops sending to the Streaming API for that host",
+      "Endpoints with detections disabled will not alert on anything for 24 hours (by default) or longer if that setting is changed"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 9,
+    "question": "What is the purpose of using groups with Sensor Update policies in CrowdStrike Falcon?",
+    "choices": [
+      "To group hosts with others in the same business unit",
+      "To group hosts according to the order in which Falcon was installed, so that updates are installed in the same order every time",
+      "To prioritize the order in which Falcon updates are installed, so that updates are not installed all at once leading to network congestion",
+      "To allow the controlled assignment of sensor versions onto specific hosts"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 10,
+    "question": "What command should be run to verify if a Windows sensor is running?",
+    "choices": [
+      "regedit myfile.reg",
+      "sc query csagent",
+      "netstat -f",
+      "ps -ef | grep falcon"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 11,
+    "question": "Under the \"Next-Gen Antivirus: Cloud Machine Learning\" setting there are two categories, one of them is \"Cloud Anti-Malware\" and the other is:",
+    "choices": [
+      "Adware & PUP",
+      "Advanced Machine Learning",
+      "Sensor Anti-Malware",
+      "Execution Blocking"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 12,
+    "question": "What is the purpose of precedence with respect to the Sensor Update policy?",
+    "choices": [
+      "Precedence applies to the Prevention policy and not to the Sensor Update policy",
+      "Hosts assigned to multiple policies will assume the highest ranked policy in the list (policy with the lowest number)",
+      "Hosts assigned to multiple policies will assume the lowest ranked policy in the list (policy with the highest number)",
+      "Precedence ensures that conflicting policy settings are not set in the same policy"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 13,
+    "question": "Which is the correct order for manually installing a Falcon Package on a macOS system?",
+    "choices": [
+      "Install the Falcon package, then register the Falcon Sensor via the registration package",
+      "Install the Falcon package, then register the Falcon Sensor via command line",
+      "Register the Falcon Sensor via command line, then install the Falcon package",
+      "Register the Falcon Sensor via the registration package, then install the Falcon package"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 14,
+    "question": "When uninstalling a sensor, which of the following is required if the 'Uninstall and maintenance protection' setting is enabled within the Sensor Update Policies?",
+    "choices": [
+      "Maintenance token",
+      "Customer ID (CID)",
+      "Bulk update key",
+      "Agent ID (AID)"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 15,
+    "question": "Which of the following Machine Learning (ML) sliders will only detect or prevent high confidence malicious items?",
+    "choices": [
+      "Aggressive",
+      "Cautious",
+      "Minimal",
+      "Moderate"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 16,
+    "question": "You are attempting to install the Falcon sensor on a host with a slow Internet connection and the installation fails after 20 minutes. Which of the following parameters can be used to override the 20 minute default provisioning window?",
+    "choices": [
+      "ExtendedWindow=1",
+      "Timeout=0",
+      "ProvNoWait=1",
+      "Timeout=30"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 17,
+    "question": "Your CISO has decided all Falcon Analysts should also have the ability to view files and file contents locally on compromised hosts, but without the ability to take them off the host. What is the most appropriate role that can be added to fullfil this requirement?",
+    "choices": [
+      "Remediation Manager",
+      "Real Time Responder – Read Only Analyst",
+      "Falcon Analyst – Read Only",
+      "Real Time Responder – Active Responder"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 18,
+    "question": "Which option allows you to exclude behavioral detections from the detections page?",
+    "choices": [
+      "Machine Learning Exclusion",
+      "IOA Exclusion",
+      "IOC Exclusion",
+      "Sensor Visibility Exclusion"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 19,
+    "question": "Which role will allow someone to manage quarantine files?",
+    "choices": [
+      "Falcon Security Lead",
+      "Detections Exceptions Manager",
+      "Falcon Analyst – Read Only",
+      "Endpoint Manager"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 20,
+    "question": "When a host is placed in Network Containment, which of the following is TRUE?",
+    "choices": [
+      "The host machine is unable to send or receive network traffic outside of the local network",
+      "The host machine is unable to send or receive network traffic except to/from the Falcon Cloud and traffic allowed in the Firewall Policy",
+      "The host machine is unable to send or receive any network traffic",
+      "The host machine is unable to send or receive network traffic except to/from the Falcon Cloud and any resources allowlisted in the Containment Policy"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 21,
+    "question": "How do you disable all detections for a host?",
+    "choices": [
+      "Create an exclusion rule and apply it to the machine or group of machines",
+      "Contact support and provide them with the Agent ID (AID) for the machine and they will put it on the Disabled Hosts list in your Customer ID (CID)",
+      "You cannot disable all detections on individual hosts as it would put them at risk",
+      "In Host Management, select the host and then choose the option to Disable Detections"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 22,
+    "question": "In order to quarantine files on the host, what prevention policy settings must be enabled?",
+    "choices": [
+      "Malware Protection and Custom Execution Blocking must be enabled",
+      "Next-Gen Antivirus Prevention sliders and \"Quarantine & Security Center Registration\" must be enabled",
+      "Malware Protection and Windows Anti-Malware Execution Blocking must be enabled",
+      "Behavior-Based Threat Prevention sliders and Advanced Remediation Actions must be enabled"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 23,
+    "question": "What is the maximum number of patterns that can be added when creating a new exclusion?",
+    "choices": [
+      "10",
+      "0",
+      "1",
+      "5"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 24,
+    "question": "Which of the following is TRUE of the Logon Activities Report?",
+    "choices": [
+      "Shows a graphical view of user logon activity and the hosts the user connected to",
+      "The report can be filtered by computer name",
+      "It gives a detailed list of all logon activity for users",
+      "It only gives a summary of the last logon activity for users"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 25,
+    "question": "You have created a Sensor Update Policy for the Mac platform. Which other operating system(s) will this policy manage?",
+    "choices": [
+      "*nix",
+      "Windows",
+      "Both Windows and *nix",
+      "Only Mac"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: Reference: https://www.crowdstrike.com/blog/tech-center/how-to-manage-policies-in-falcon/"
+  },
+  {
+    "id": 26,
+    "question": "You have determined that you have numerous Machine Learning detections in your environment that are false positives. They are caused by a single binary that was custom written by a vendor for you and that binary is running on many endpoints. What is the best way to prevent these in the future?",
+    "choices": [
+      "Contact support and request that they modify the Machine Learning settings to no longer include this detection",
+      "Using IOC Management, add the hash of the binary in question and set the action to \"Allow\"",
+      "Using IOC Management, add the hash of the binary in question and set the action to \"Block, hide detection\"",
+      "Using IOC Management, add the hash of the binary in question and set the action to \"No Action\""
+    ],
+    "answer": 1
+  },
+  {
+    "id": 27,
+    "question": "What is the most common cause of a Windows Sensor entering Reduced Functionality Mode (RFM)?",
+    "choices": [
+      "Falcon console updates are pending",
+      "Falcon sensors installing an update",
+      "Notifications have been disabled on that host sensor",
+      "Microsoft updates"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 28,
+    "question": "When creating a Host Group for all Workstations in an environment, what is the best method to ensure all workstation hosts are added to the group?",
+    "choices": [
+      "Create a Dynamic Group with Type=Workstation Assignment",
+      "Create a Dynamic Group and Import All Workstations",
+      "Create a Static Group and Import all Workstations",
+      "Create a Static Group with Type=Workstation Assignment"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 29,
+    "question": "Which role allows a user to connect to hosts using Real-Time Response?",
+    "choices": [
+      "Endpoint Manager",
+      "Falcon Administrator",
+      "Real Time Responder – Active Responder",
+      "Prevention Hashes Manager"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 30,
+    "question": "Where can you modify settings to permit certain traffic during a containment period?",
+    "choices": [
+      "Prevention Policy",
+      "Host Settings",
+      "Containment Policy",
+      "Firewall Settings"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 31,
+    "question": "Which of the following is a valid step when troubleshooting sensor installation failure?",
+    "choices": [
+      "Confirm all required services are running on the system",
+      "Enable the Windows firewall",
+      "Disable SSL and TLS on the host",
+      "Delete any available application crash log files"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 32,
+    "question": "How many \"Auto\" sensor version update options are available for Windows Sensor Update Policies?",
+    "choices": [
+      "1",
+      "2",
+      "0",
+      "3"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 33,
+    "question": "Where in the Falcon console can information about supported operating system versions be found?",
+    "choices": [
+      "Configuration module",
+      "Intelligence module",
+      "Support module",
+      "Discover module"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 34,
+    "question": "Under which scenario can Sensor Tags be assigned?",
+    "choices": [
+      "While triaging a detection",
+      "While managing hosts in the Falcon console",
+      "While updating a sensor in the Falcon console",
+      "While installing a sensor"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 35,
+    "question": "How can a Falcon Administrator configure a pop-up message to be displayed on a host when the Falcon sensor blocks, kills or quarantines an activity?",
+    "choices": [
+      "By ensuring each user has set the \"pop-ups allowed\" in their User Profile configuration page",
+      "By enabling \"Upload quarantined files\" in the General Settings configuration page",
+      "By turning on the \"Notify End Users\" setting at the top of the Prevention policy details configuration page",
+      "By selecting \"Enable pop-up messages\" from the User configuration page"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 36,
+    "question": "One of your development teams is working on code for a new enterprise application but Falcon continually flags the execution as a detection during testing. All development work is required to be stored on a file share in a folder called \"devcode.\" What setting can you use to reduce false positives on this file path?",
+    "choices": [
+      "USB Device Policy",
+      "Firewall Rule Group",
+      "Containment Policy",
+      "Machine Learning Exclusions"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 37,
+    "question": "What is the primary purpose of using glob syntax in an exclusion?",
+    "choices": [
+      "To specify a Domain be excluded from detections",
+      "To specify exclusion patterns to easily exclude files and folders and extensions from detections",
+      "To specify exclusion patterns to easily add files and folders and extensions to be prevented",
+      "To specify a network share be excluded from detections"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 38,
+    "question": "Which of the following options is a feature found ONLY with the Sensor-based Machine Learning (ML)?",
+    "choices": [
+      "Next-Gen Antivirus (NGAV) protection",
+      "Adware and Potentially Unwanted Program detection and prevention",
+      "Real-time offline protection",
+      "Identification and analysis of unknown executables"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 39,
+    "question": "On a Windows host, what is the best command to determine if the sensor is currently running?",
+    "choices": [
+      "sc query csagent",
+      "netstat -a",
+      "This cannot be accomplished with a command",
+      "ping falcon.crowdstrike.com"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 40,
+    "question": "Even though you are a Falcon Administrator, you discover you are unable to use the \"Connect to Host\" feature to gather additional information which is only available on the host. Which role do you need added to your user account to have this capability?",
+    "choices": [
+      "Real Time Responder",
+      "Endpoint Manager",
+      "Falcon Investigator",
+      "Remediation Manager"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 41,
+    "question": "Which port and protocol does the sensor use to communicate with the CrowdStrike Cloud?",
+    "choices": [
+      "TCP port 22 (SSH)",
+      "TCP port 443 (HTTPS)",
+      "TCP port 80 (HTTP)",
+      "TCP UDP port 53 (DNS)"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 42,
+    "question": "What type of information is found in the Linux Sensors Dashboard?",
+    "choices": [
+      "Hosts by Kernel Version, Shells spawned by Root, Wget/Curl Usage",
+      "Hidden File execution, Execution of file from the trash, Versions Running with ComputerNames",
+      "Versions running, Directory Made Invisible to Spotlight, Logging/Auditing Referenced, Viewed, or Modified",
+      "Private Information Accessed, Archiving Tools – Exfil, Files Made Executable"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 43,
+    "question": "How long are detection events kept in Falcon?",
+    "choices": [
+      "Detection events are kept for 90 days",
+      "Detections events are kept for your subscribed data retention period",
+      "Detection events are kept for 7 days",
+      "Detection events are kept for 30 days"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 44,
+    "question": "What can the Quarantine Manager role do?",
+    "choices": [
+      "Manage and change prevention settings",
+      "Manage quarantined files to release and download",
+      "Manage detection settings",
+      "Manage roles and users"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 45,
+    "question": "How do you find a list of inactive sensors?",
+    "choices": [
+      "The Falcon platform does not provide reporting for inactive sensors",
+      "A sensor is always considered active until removed by an Administrator",
+      "Run the Inactive Sensor Report in the Host setup and management option",
+      "Run the Sensor Aging Report within the Investigate option"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 46,
+    "question": "The Falcon sensor uses certificate pinning to defend against man-in-the-middle attacks. Which statement is TRUE concerning Falcon sensor certificate validation?",
+    "choices": [
+      "SSL inspection should be configured to occur on all Falcon traffic",
+      "Some network configurations, such as deep packet inspection, interfere with certificate validation",
+      "HTTPS interception should be enabled to proceed with certificate validation",
+      "Common sources of interference with certificate pinning include protocol race conditions and resource contention"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 47,
+    "question": "You have an existing workflow that is triggered on a critical detection that sends an email to the escalation team. Your CISO has asked to also be notified via email with a customized message. What is the best way to update the workflow?",
+    "choices": [
+      "Clone the workflow and replace the existing email with your CISO's email",
+      "Add a sequential action to send a custom email to your CISO",
+      "Add a parallel action to send a custom email to your CISO",
+      "Add the CISO's email to the existing action"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 48,
+    "question": "You have been provided with a list of 100 hashes that are not malicious but your company has deemed to be inappropriate for work computers. They have asked you to ensure that they are not allowed to run in your environment. You have chosen to use Falcon to do this. Which is the best way to accomplish this?",
+    "choices": [
+      "Using the Support Portal, create a support ticket and include the list of binary hashes, asking support to create an \"Execution Prevention\" rule to prevent these processes from running",
+      "Using Custom Alerts in the Investigate App, create a new alert using the template\"Process Execution\" and within that rule, select the option to \"Block Execution\"",
+      "Using IOC Management, gather the list of SHA256 or MD5 hashes for each binary and then upload them. Set all hashes to \"Block\" and ensure that the prevention policy these computers are using includes the option for \"Custom Blocking\" under Execution Blocking.",
+      "Using the API, gather the list of SHA256 or MD5 hashes for each binary and then upload them, setting them all to \"Never Allow\""
+    ],
+    "answer": 2
+  },
+  {
+    "id": 49,
+    "question": "Which is a filter within the Host setup and management > Host management page?",
+    "choices": [
+      "User name",
+      "OU",
+      "BIOS Version",
+      "Locality"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 50,
+    "question": "How do you assign a Prevention policy to one or more hosts?",
+    "choices": [
+      "Create a new policy and assign it directly to those hosts on the Host Management page",
+      "Modify the users roles on the User Management page",
+      "Ensure the hosts are in a group and assign that group to a custom Prevention policy",
+      "Create a new policy and assign it directly to those hosts on the Prevention policy page"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 51,
+    "question": "Where do you obtain the Windows sensor installer for CrowdStrike Falcon?",
+    "choices": [
+      "Sensors are downloaded from the Hosts > Sensor Downloads",
+      "Sensor installers are unique to each customer and must be obtained from support",
+      "Sensor installers are downloaded from the Support section of the CrowdStrike website",
+      "Sensor installers are not used because sensors are deployed from within Falcon"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 52,
+    "question": "Which of the following applies to Custom Blocking Prevention Policy settings?",
+    "choices": [
+      "Hashes must be entered on the Prevention Hashes page before they can be blocked via this policy",
+      "Blocklisting applies to hashes, IP addresses, and domains",
+      "Executions blocked via hash blocklist may have partially executed prior to hash calculation process remediation may be necessary",
+      "You can only blocklist hashes via the API"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 53,
+    "question": "An administrator creating an exclusion is limited to applying a rule to how many groups of hosts?",
+    "choices": [
+      "File exclusions are not aligned to groups or hosts",
+      "There is a limit of three groups of hosts applied to any exclusion",
+      "There is no limit and exclusions can be applied to any or all groups",
+      "Each exclusion can be aligned to only one group of hosts"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 54,
+    "question": "Why is it critical to have separate sensor update policies for Windows/Mac/*nix?",
+    "choices": [
+      "There may be special considerations for each OS",
+      "To assist with testing and tracking sensor rollouts",
+      "The network protocols are different for each host OS",
+      "It is an auditing requirement"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 55,
+    "question": "What information is provided in Logan Activities under Visibility Reports?",
+    "choices": [
+      "A list of all logons for all users",
+      "A list of last endpoints that a user logged in to",
+      "A list of users who are remotely logged on to devices based on local IP and local port",
+      "A list of unique users who are remotely logged on to devices based on the country"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 56,
+    "question": "If a user wanted to install an older version of the Falcon sensor, how would they find the older installer file?",
+    "choices": [
+      "Older versions of the sensor are not available for download",
+      "By emailing CrowdStrike support at support@crowdstrike.com",
+      "By installing the current sensor and clicking the \"downgrade\" button during the install",
+      "By clicking on \"Older versions\" links under the Host setup and management > Deploy >Sensor downloads"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 57,
+    "question": "Which of the following is an effective Custom IOA rule pattern to kill any process attempting to access www.badguydomain.com?",
+    "choices": [
+      ".*badguydomain.com.*",
+      "\\Device\\HarddiskVolume2\\*.exe -SingleArgument www.badguydomain.com /kill",
+      "badguydomain\\.com.*",
+      "Custom IOA rules cannot be created for domains"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 58,
+    "question": "Custom IOA rules are defined using which syntax?",
+    "choices": [
+      "Glob",
+      "PowerShell",
+      "Yara",
+      "Regex"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 59,
+    "question": "With Custom Alerts, it is possible to __________.",
+    "choices": [
+      "schedule the alert to run at any interval",
+      "receive an alert in an email",
+      "configure prevention actions for alerting",
+      "be alerted to activity in real-time"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 60,
+    "question": "How can you find a list of hosts that have not communicated with the CrowdStrike Cloud in the last 30 days?",
+    "choices": [
+      "Under Dashboards and reports, choose the Sensor Report. Set the \"Last Seen\" dropdown to 30 days and reference the Inactive Sensors widget",
+      "Under Host setup and management, choose the Host Management page. Set the group filter to \"Inactive Sensors\"",
+      "Under Host setup and management > Managed endpoints > Inactive Sensors. Change the time range to 30 days",
+      "Under Host setup and management, choose the Disabled Sensors Report. Change the time range to 30 days"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 61,
+    "question": "Why is it important to know your company's event data retention limits in the Falcon platform?",
+    "choices": [
+      "This is not necessary; you simply select \"All Time\" in your query to search all data",
+      "You will not be able to search event data into the past beyond your retention period",
+      "Data such as process records are kept for a shorter time than event data",
+      "Your query will require you to specify the data pool associated with the date you wish to search"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 62,
+    "question": "You need to export a list of all deletions for a specific Host Name in the last 24 hours. What is the best way to do this?",
+    "choices": [
+      "Go to Host Management in the Host page. Select the host and use the Export Detections button",
+      "Utilize the Detection Resolution Dashboard. Use the filters to focus on the appropriate hostname and time, then export the results from the \"Detection Resolution History\" section",
+      "In the Investigate module, access the Detection Activity page. Use the filters to focus on the appropriate hostname and time, then export the results",
+      "Utilize the Detection Activity Dashboard. Use the filters to focus on the appropriate hostname and time, then export the results from the \"Detections by Host\" section"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 63,
+    "question": "What must an admin do to reset a user's password?",
+    "choices": [
+      "From User Management, open the account details for the affected user and select \"Generate New Password\"",
+      "From User Management, select \"Reset Password\" from the three dot menu for the affected user account",
+      "From User Management, select \"Update Account\" and manually create a new password for the affected user account",
+      "From User Management, the administrator must rebuild the account as the certificate for user specific private/public key generation is no longer valid"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 64,
+    "question": "Why would you assign hosts to a static group instead of a dynamic group?",
+    "choices": [
+      "You do not want the group membership to change automatically",
+      "You are managing more than 1000 hosts",
+      "You need hosts to be automatically assigned to a group",
+      "You want the group to contain hosts from multiple operating systems"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 65,
+    "question": "In order to exercise manual control over the sensor upgrade process, as well as prevent unauthorized users from uninstalling or upgrading the sensor, which settings in the Sensor Update Policy would meet this criteria?",
+    "choices": [
+      "Sensor version set to N-1 and Bulk maintenance mode is turned on",
+      "Sensor version fixed and Uninstall and maintenance protection turned on",
+      "Sensor version updates off and Uninstall and maintenance protection turned off",
+      "Sensor version set to N-2 and Bulk maintenance mode is turned on"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 66,
+    "question": "When creating an API client, which of the following must be saved immediately since it cannot be viewed again after the client is created?",
+    "choices": [
+      "Base URL",
+      "Secret",
+      "Client ID",
+      "Client name"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 67,
+    "question": "You want to create a detection-only policy. How do you set this up in your policy's settings?",
+    "choices": [
+      "Enable the detection sliders and disable the prevention sliders. Then ensure that Next Gen Antivirus is enabled so it will disable Windows Defender.",
+      "Select the \"Detect-Only\" template. Disable hash blocking and exclusions.",
+      "You can't create a policy that detects but does not prevent. Use Custom IOA rules to detect.",
+      "Set the Next-Gen Antivirus detection settings to the desired detection level and all the prevention sliders to disabled. Do not activate any of the other blocking or malware prevention options."
+    ],
+    "answer": 3
+  },
+  {
+    "id": 68,
+    "question": "Which report can assist in determining the appropriate Machine Learning levels to set in a Prevention Policy?",
+    "choices": [
+      "Sensor Report",
+      "Machine Learning Prevention Monitoring",
+      "Falcon UI Audit Trail",
+      "Machine Learning Debug"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 69,
+    "question": "What is the purpose of a containment policy?",
+    "choices": [
+      "To define which Falcon analysts can contain endpoints",
+      "To define the duration of Network Containment",
+      "To define the trigger under which a machine is put in Network Containment (e.g. a critical detection)",
+      "To define allowed IP addresses over which your hosts will communicate when contained"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 70,
+    "question": "Which of the following can a Falcon Administrator edit in an existing user's profile?",
+    "choices": [
+      "First or Last name",
+      "Phone number",
+      "Email address",
+      "Working groups"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 71,
+    "question": "Which of the following best describes the Default Sensor Update policy?",
+    "choices": [
+      "The Default Sensor Update policy does not have the \"Uninstall and maintenance protection\" feature",
+      "The Default Sensor Update policy is only used for testing sensor updates",
+      "The Default Sensor Update policy is a \"catch-all\" policy",
+      "The Default Sensor Update policy is disabled by default"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 72,
+    "question": "How does the Unique Hosts Connecting to Countries Map help an administrator?",
+    "choices": [
+      "It highlights countries with known malware",
+      "It helps visualize global network communication",
+      "It identifies connections containing threats",
+      "It displays intrusions from foreign countries"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 73,
+    "question": "While a host is Network contained, you need to allow the host to access internal network resources on specific IP addresses to perform patching and remediation. Which configuration would you choose?",
+    "choices": [
+      "Configure a Real Time Response policy allowlist with the specific IP addresses",
+      "Configure a Containment Policy with the specific IP addresses",
+      "Configure a Containment Policy with the entire internal IP CIDR block",
+      "Configure the Host firewall to allowlist the specific IP addresses"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 74,
+    "question": "Which of the following is NOT a way to determine the sensor version installed on a specific endpoint?",
+    "choices": [
+      "Use the Sensor Report to filter to the specific endpoint",
+      "Use Host Management to select the desired endpoint. The agent version will be listed in the columns and details",
+      "From a command line, run the sc query csagent -version command",
+      "Use the Investigate > Host Search to filter to the specific endpoint"
+    ],
+    "answer": 2,
+    "explanation": "Explanation: Reference: https://success.trendmicro.com/solution/1114876-viewing"
+  },
+  {
+    "id": 75,
+    "question": "Which of the following is NOT an available filter on the Hosts Management page?",
+    "choices": [
+      "Hostname",
+      "Username",
+      "Group",
+      "OS Version"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 76,
+    "question": "When configuring a specific prevention policy, the admin can align the policy to two different types of groups, Host Groups and which other?",
+    "choices": [
+      "Custom IOA Rule Groups",
+      "Custom IOC Groups",
+      "Enterprise Groups",
+      "Operating System Groups"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 77,
+    "question": "How do you assign a policy to a specific group of hosts?",
+    "choices": [
+      "Create a group containing the desired hosts using \"Static Assignment.\" Go to the Assigned Host Groups tab of the desired policy and dick \"Add groups to policy.\" Select the desired Group(s).",
+      "Assign a tag to the desired hosts in Host Management. Create a group with an assignment rule based on that tag. Go to the Assignment tab of the desired policy and click \"Add Groups to Policy.\" Select the desired Group(s).",
+      "Create a group containing the desired hosts using \"Dynamic Assignment.\" Go to the Assigned Host Groups tab of the desired policy and select criteria such as OU, OS, Hostname pattern, etc.",
+      "On the Assignment tab of the desired policy, select \"Static\" assignment. From the next window, select the desired hosts (using fitters if needed) and click Add."
+    ],
+    "answer": 0
+  },
+  {
+    "id": 78,
+    "question": "What is the goal of a Network Containment Policy?",
+    "choices": [
+      "Increase the aggressiveness of the assigned prevention policy",
+      "Limit the impact of a compromised host on the network",
+      "Gain more visibility into network activities",
+      "Partition a network for privacy"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 79,
+    "question": "You are evaluating the most appropriate Prevention Policy Machine Learning slider settings for your environment. In your testing phase, you configure the Detection slider as Aggressive. After running the sensor with this configuration for 1 week of testing, which Audit report should you review to determine the best Machine Learning slider settings for your organization?",
+    "choices": [
+      "Prevention Policy Audit Trail",
+      "Prevention Policy Debug",
+      "Prevention Hashes Ignored",
+      "Machine-Learning Prevention Monitoring"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 80,
+    "question": "You want the Falcon Cloud to push out sensor version changes but you also want to manually control when the sensor version is upgraded or downgraded. In the Sensor Update policy, which is the best Sensor version option to achieve these requirements?",
+    "choices": [
+      "Specific sensor version number",
+      "Auto - TEST-QA",
+      "Sensor version updates off",
+      "Auto - N-1"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 81,
+    "question": "Which of the following roles allows a Falcon user to create Real Time Response Custom Scripts?",
+    "choices": [
+      "Real Time Responder – Administrator",
+      "Real Time Responder – Read Only Analyst",
+      "Real Time Responder – Script Developer",
+      "Real Time Responder – Active Responder"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 82,
+    "question": "The Logon Activities Report includes all of the following information for a particular user EXCEPT __________.",
+    "choices": [
+      "the account type for the user (e.g. Domain Administrator, Local User)",
+      "all hosts the user logged into",
+      "the logon type (e.g. interactive, service)",
+      "the last time the user's password was set"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 83,
+    "question": "What model is used to create workflows that would allow you to create custom notifications based on particular events which occur in the Falcon platform?",
+    "choices": [
+      "For - While statement(s)",
+      "Trigger, condition(s) and action(s)",
+      "Event trigger(s)",
+      "Predefined workflow template(s)"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 84,
+    "question": "What are custom alerts based on?",
+    "choices": [
+      "Custom workflows",
+      "Custom event based triggers",
+      "Predefined alert templates",
+      "User defined Splunk queries"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 85,
+    "question": "Which role is required to manage groups and policies in Falcon?",
+    "choices": [
+      "Falcon Host Analyst",
+      "Falcon Host Administrator",
+      "Prevention Hashes Manager",
+      "Falcon Host Security Lead"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 86,
+    "question": "When would the No Action option be assigned to a hash in IOC Management?",
+    "choices": [
+      "When you want to save the indicator for later action, but do not want to block or allow it at this time",
+      "Add the indicator to your allowlist and do not detect it",
+      "There is no such option as No Action available in the Falcon console",
+      "Add the indicator to your blocklist and show it as a detection"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 87,
+    "question": "To enhance your security, you want to detect and block based on a list of domains and IP addresses. How can you use IOC management to help this objective?",
+    "choices": [
+      "Blocking of Domains and IP addresses is not a function of IOC management. A Custom IOA Rule should be used instead",
+      "Using IOC management, import the list of hashes and IP addresses and set the action to Detect Only",
+      "Using IOC management, import the list of hashes and IP addresses and set the action to Prevent/Block",
+      "Using IOC management, import the list of hashes and IP addresses and set the action to No Action"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 88,
+    "question": "When the Notify End Users policy setting is turned on, which of the following is TRUE?",
+    "choices": [
+      "End users will not be notified as we would not want to notify a malicious actor of a detection. This setting does not exist",
+      "End users will be immediately notified via a pop-up that their machine is in-network isolation",
+      "End-users receive a pop-up notification when a prevention action occurs",
+      "End users will receive a pop-up allowing them to confirm or refuse a pending quarantine"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 89,
+    "question": "You notice there are multiple Windows hosts in Reduced functionality mode (RFM). What is the most likely culprit causing these hosts to be in RFM?",
+    "choices": [
+      "A Sensor Update Policy was misconfigured",
+      "A host was offline for more than 24 hours",
+      "A patch was pushed overnight to all Windows systems",
+      "A host was placed in network containment from a detection"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 90,
+    "question": "You are beginning the rollout of the Falcon Sensor for the first time side-by-side with your existing security solution. You need to configure the Machine Learning levels of the Prevention Policy so it does not interfere with existing solutions during the testing phase. What settings do you choose?",
+    "choices": [
+      "Detection slider: Extra Aggressive Prevention slider: Cautious",
+      "Detection slider: Moderate Prevention slider: Disabled",
+      "Detection slider: Cautious Prevention slider: Cautious",
+      "Detection slider: Disabled Prevention slider: Disabled"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 91,
+    "question": "The alignment of a particular prevention policy to one or more host groups can be completed in which of the following locations within Falcon?",
+    "choices": [
+      "Policy alignment is configured in the \"Host Management\" section in the Hosts application",
+      "Policy alignment is configured only once during the initial creation of the policy in the \"Create New Policy\" pop-up window",
+      "Policy alignment is configured in the General Settings section under the Configuration menu",
+      "Policy alignment is configured in each policy in the \"Assigned Host Groups\" tab"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 92,
+    "question": "Which of the following is TRUE regarding Falcon Next-Gen AntiVirus (NGAV)?",
+    "choices": [
+      "Falcon NGAV relies on signature-based detections",
+      "Activating Falcon NGAV will also enable all detection and prevention settings in the entire policy",
+      "The Detection sliders cannot be set to a value less aggressive than the Prevention sliders",
+      "Falcon NGAV is not a replacement for Windows Defender or other antivirus programs"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 93,
+    "question": "An analyst is asked to retrieve an API client secret from a previously generated key. How can they achieve this?",
+    "choices": [
+      "The API client secret can be viewed from the Edit API client pop-up box",
+      "Enable the Client Secret column to reveal the API client secret",
+      "Re-create the API client using the exact name to see the API client secret",
+      "The API client secret cannot be retrieved after it has been created"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 94,
+    "question": "What is the name for the unique host identifier in Falcon assigned to each sensor during sensor installation?",
+    "choices": [
+      "Endpoint ID (EID)",
+      "Agent ID (AID)",
+      "Security ID (SID)",
+      "Computer ID (CID)"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 95,
+    "question": "On which page of the Falcon console would you create sensor groups?",
+    "choices": [
+      "User management",
+      "Sensor update policies",
+      "Host management",
+      "Host groups"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 96,
+    "question": "What is the function of a single asterisk (*) in an ML exclusion pattern?",
+    "choices": [
+      "The single asterisk will match any number of characters, including none. It does include separator characters, such as \\ or /, which separate portions of a file path",
+      "The single asterisk will match any number of characters, including none. It does not include separator characters, such as \\ or /, which separate portions of a file path",
+      "The single asterisk is the insertion point for the variable list that follows the path",
+      "The single asterisk is only used to start an expression, and it represents the drive letter"
+    ],
+    "answer": 1,
+    "explanation": "Explanation: Reference: https://docs.microsoft.com/en-us/azure/machine-learning"
+  },
+  {
+    "id": 97,
+    "question": "What would be the most appropriate action to take if you wanted to prevent a folder from being uploaded to the cloud without disabling uploads globally?",
+    "choices": [
+      "A Machine Learning exclusion",
+      "A Sensor Visibility exclusion",
+      "An IOA exclusion",
+      "A Custom IOC entry"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: The most appropriate action to take if you wanted to prevent a folder from being uploaded to the cloud without disabling uploads globally is to create a Custom IOC entry. A Custom IOC (indicator of compromise) entry allows you to define custom rules for detecting or preventing malicious activity based on file hashes, file paths, IP addresses, or domains. You can use regex (regular expression) syntax to create a Custom IOC entry that matches the folder path that you want to block from being uploaded to the cloud1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 98,
+    "question": "Which of the following uses Regex to create a detection or take a preventative action?",
+    "choices": [
+      "Custom IOC",
+      "Machine Learning Exclusion",
+      "Custom IOA",
+      "Sensor Visibility Exclusion"
+    ],
+    "answer": 2,
+    "explanation": "Explanation: The option that uses regex to create a detection or take a preventative action is Custom IOA. A Custom IOA (indicator of attack) allows you to define custom rules for detecting or preventing suspicious behavior based on process execution, file write, network connection, or registry events. You can use regex syntax to create a Custom IOA rule that matches the event data that you want to monitor or block1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 99,
+    "question": "When creating a custom IOA for a specific domain, which syntax would be best for detecting or preventing on all subdomains as well?",
+    "choices": [
+      "*\\.baddomain\\.xyz|baddomain\\. xyz",
+      "*baddomain\\. xyz|baddomain\\. xyz. *",
+      "Custom IOA rules cannot be created for domains",
+      "**baddomain\\. xyz|baddomain\\. xyz**"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: The syntax that would be best for detecting or preventing on all subdomains as well is *.baddomain.xyz|baddomain. xyz. This syntax will match any domain that ends with .baddomain.xyz or is exactly baddomain.xyz. The * wildcard will match any characters before the dot, and the | operator will match either side of the expression. This syntax can be used in a Custom IOC or a Custom IOA rule to detect or prevent network connections to malicious domains1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 100,
+    "question": "What statement is TRUE about managing a user's role?",
+    "choices": [
+      "The Administrator cannot re-use the account email for a new account",
+      "You must have Falcon MFA enabled first",
+      "You must be a Falcon Security Lead",
+      "You must be a Falcon Administrator"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: The statement that is true about managing a user’s role is that you must be a Falcon Administrator. A Falcon Administrator is a role that has full access and control over all features and functions in Falcon, including user management. A Falcon Administrator can create, modify, delete, and assign roles to other users in Falcon. A Falcon Administrator can also re-use the account email for a new account, enable Falcon MFA (multi-factor authentication), and assign other roles such as Falcon Security Lead or Falcon Investigator2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 101,
+    "question": "Which Real Time Response role will allow you to see all analyst session details?",
+    "choices": [
+      "Real Time Response - Read-Only Analyst",
+      "None of the Real Time Response roles allows this",
+      "Real Time Response -Active Responder",
+      "Real Time Response -Administrator"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: The Real Time Response role that will allow you to see all analyst session details is Real Time Response -Administrator. A Real Time Response -Administrator is a role that has full access and control over the Real Time Response feature in Falcon, which allows you to remotely access and investigate hosts in real time. A Real Time Response -Administrator can view all analyst session details, such as session ID, host name, start and end time, commands executed, and output received. A Real Time Response -Administrator can also create, modify, delete, and assign scripts and commands to other analysts2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 102,
+    "question": "Which command would tell you if a Falcon Sensor was running on a Windows host?",
+    "choices": [
+      "cswindiag.exe -status",
+      "netstat.exe -f",
+      "sc.exe query csagent",
+      "sc.exe query falcon"
+    ],
+    "answer": 2,
+    "explanation": "Explanation: The command that would tell you if a Falcon Sensor was running on a Windows host is sc.exe query csagent. This command will show the status of the csagent service, which is responsible for running the sensor on Windows systems. The output of this command will indicate if the service is running, stopped, or paused. If the service is running, the sensor is also running3. Reference: 3: How to Become a CrowdStrike Certified Falcon Administrator"
+  },
+  {
+    "id": 103,
+    "question": "On which page of the Falcon console can one locate the Customer ID (CID)?",
+    "choices": [
+      "Hosts Management",
+      "API Clients and Keys",
+      "Sensor Dashboard",
+      "Sensor Downloads"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: Within the CrowdStrike Falcon console, the Customer ID (CID) is usually located on a specific page and is used to identify or authorize operations for a specific customer. Here's a brief analysis of each option: Hosts Management: This page is typically used for managing and viewing hosts within the network and is less likely to contain the Customer ID. API Clients and Keys: While this page is generally used for managing API credentials, and could potentially contain the Customer ID, it's not its primary function. Sensor Dashboard: This page is typically used for viewing and managing the status and activities of Falcon sensors, and is less likely to contain the Customer ID. Sensor Downloads: In the CrowdStrike Falcon platform, the Customer ID (CID) is typically located on the \"Sensor Downloads\" page. This ID is often used for downloading and configuring Falcon sensors."
+  },
+  {
+    "id": 104,
+    "question": "After Network Containing a host, your Incident Response team states they are unable to remotely connect to the host. Which of the following would need to be configured to allow remote connections from specified IP's?",
+    "choices": [
+      "Response Policy",
+      "Containment Policy",
+      "Maintenance Token",
+      "IP Allowlist Management"
+    ],
+    "answer": 1,
+    "explanation": "Explanation: The option that would need to be configured to allow remote connections from specified IP’s after network containing a host is IP Allowlist Management. IP Allowlist Management allows you to define a list of trusted IP addresses that can communicate with your contained hosts. This way, you can isolate a host from the network while still allowing your incident response team or other authorized parties to remotely connect to the host for investigation or remediation purposes2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 105,
+    "question": "Which of the following controls the speed in which your sensors will receive automatic sensor updates?",
+    "choices": [
+      "Maintenance Tokens",
+      "Sensor Update Policy",
+      "Sensor Update Throttling",
+      "Channel File Update Throttling"
+    ],
+    "answer": 2,
+    "explanation": "Explanation: The option that controls the speed in which your sensors will receive automatic sensor updates is Sensor Update Throttling. Sensor Update Throttling allows you to limit the number of sensors that can download a new sensor version per hour. This way, you can avoid network congestion or bandwidth issues caused by simultaneous sensor updates. You can configure the Sensor Update Throttling setting in the Sensor Update Policy for each platform1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 106,
+    "question": "Which of the following tools developed by Crowdstrike is intended to help with removal of the CrowdStrike Windows Falcon Sensor?",
+    "choices": [
+      "CrowdStrikeRemovalTool.exe",
+      "UninstallTool.exe",
+      "CSUninstallTool.exe",
+      "FalconUninstall.exe"
+    ],
+    "answer": 2,
+    "explanation": "Explanation: The tool developed by Crowdstrike that is intended to help with removal of the CrowdStrike Windows Falcon Sensor is CSUninstallTool.exe. This tool is a command-line utility that can uninstall the Falcon sensor from a Windows system without requiring user interaction or network connectivity. The tool can also bypass the Uninstall and Maintenance Protection feature if enabled in the Sensor Update Policy2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 107,
+    "question": "When a user initiates a sensor installs, where can the logs be found?",
+    "choices": [
+      "%SYSTEMROOT%\\Logs",
+      "%SYSTEMROOT%\\Temp",
+      "%LOCALAPPDATA%\\Logs",
+      "% LOCALAPP D ATA%\\Tem p"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: On a Windows system, when a user initiates the installation process for the CrowdStrike Falcon Sensor, the installation logs are typically stored in the %LOCALAPPDATA%\\Temp directory. Therefore, the best answer would be D."
+  },
+  {
+    "id": 108,
+    "question": "After agent installation, an agent opens a permanent_connection over port 443 and keeps that connection open until the endpoint is turned off or the network connection is terminated.",
+    "choices": [
+      "SSH",
+      "TLS",
+      "HTTP",
+      "TCP"
+    ],
+    "answer": 1,
+    "explanation": "Explanation: After agent installation, an agent opens a permanent TLS connection over port 443 and keeps that connection open until the endpoint is turned off or the network connection is terminated. TLS (Transport Layer Security) is a protocol that provides secure and encrypted communication between the agent and the Falcon cloud. Port 443 is the standard port for HTTPS (Hypertext Transfer Protocol Secure) traffic. The agent uses this connection to send and receive data, commands, policies, and updates from the Falcon cloud2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 109,
+    "question": "Which of the following best describes what the Uninstall and Maintenance Protection setting controls within your Sensor Update Policy?",
+    "choices": [
+      "Prevents automatic updates of the sensor",
+      "Prevents the sensor from entering Reduced Functionality Mode",
+      "Prevents modification of sensor update policy",
+      "Prevents unauthorized uninstallation of the sensor"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: The option that best describes what the Uninstall and Maintenance Protection setting controls within your Sensor Update Policy is that it prevents unauthorized uninstallation of the sensor. The Uninstall and Maintenance Protection setting is a feature that adds an extra layer of security to the sensor by requiring a maintenance token to uninstall or update the sensor manually. The maintenance token is a unique code that can be generated by a Falcon Administrator or a Real Time Response - Administrator in the Falcon console. Without a valid maintenance token, the sensor cannot be uninstalled or updated by anyone, including local administrators or malware2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 110,
+    "question": "Which option best describes the general process Whereinstallation of the Falcon Sensor on MacOS?",
+    "choices": [
+      "Grant the Falcon Package Full Disk Access, install the Falcon package, use falconctl to license the sensor",
+      "Install the Falcon package passing it the installation token in the command line",
+      "Install the Falcon package, use falconctl to license the sensor, approve the system extension, grant the sensor Full Disk Access",
+      "Grant the Falcon Package Full Disk Access, install the Falcon package, load the Falcon Sensor with the command 'falconctl stats'"
+    ],
+    "answer": 2,
+    "explanation": "Explanation: The option that best describes the general process for installation of the Falcon Sensor on MacOS is to install the Falcon package, use falconctl to license the sensor, approve the system extension, grant the sensor Full Disk Access. The Falcon package contains the sensor binary and the kernel extension, which can be installed by double-clicking on it or using a command-line tool such as installer. The falconctl tool is a command-line utility that allows you to configure and manage the sensor on MacOS systems. You can use falconctl to license the sensor by providing your Customer ID (CID) and optionally your Sensor Group ID (SGID). After licensing the sensor, you need to approve the system extension in the Security & Privacy settings of your system preferences, which will require a restart. Finally, you need to grant the sensor Full Disk Access in the Privacy settings of your system preferences, which will allow the sensor to monitor and protect your files and folders1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 111,
+    "question": "Where can you find your company's Customer ID (CID)?",
+    "choices": [
+      "The CID is a secret key used for Falcon communication and is never shared with the customer",
+      "The CID is only available by calling support",
+      "The CID is located at Hosts setup and management > Deploy > Sensor Downloads and is listed along with the checksum",
+      "The CID is located at Hosts > Host Management"
+    ],
+    "answer": 2,
+    "explanation": "Explanation: The CID (Customer ID) is located at Hosts setup and management > Deploy > Sensor Downloads and is listed along with the checksum. The CID is a unique identifier for your organization that is required for authenticating your sensor installation and communication with the Falcon cloud. The checksum is a value that verifies the integrity of the sensor download file. You can find your CID and checksum at the top of the Sensor Downloads page1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 112,
+    "question": "A Falcon Administrator is trying to use Real-Time Response to start a session with a host that has a sensor installed but they are unable to connect. What is the most likely cause?",
+    "choices": [
+      "The host has a user logged into it",
+      "The domain controller is preventing the connection",
+      "They do not have an RTR role assigned to them",
+      "There is another analyst connected into it"
+    ],
+    "answer": 2,
+    "explanation": "Explanation: The most likely cause for not being able to use Real-Time Response to start a session with a host that has a sensor installed is that they do not have an RTR role assigned to them. An RTR (Real Time Response) role is a role that grants access and permissions to use the Real Time Response feature in Falcon, which allows you to remotely access and investigate hosts in real time. There are three types of RTR roles: Real Time Response -Read-Only Analyst, Real Time Response -Active Responder, and Real Time Response -Administrator. You need to have at least one of these roles assigned to you in order to use Real Time Response2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 113,
+    "question": "What should be disabled on firewalls so that the sensor's man-in-the-middle attack protection works properly?",
+    "choices": [
+      "Deep packet inspection",
+      "Linux Sub-System",
+      "PowerShell",
+      "Windows Proxy"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: The option that should be disabled on firewalls so that the sensor’s man-in-the-middle attack protection works properly is deep packet inspection. Deep packet inspection is a network configuration that inspects and modifies the data packets that pass through a firewall. Deep packet inspection may interfere with the sensor’s certificate validation, which is a feature that verifies that the server certificate presented by the Falcon cloud matches a hard-coded certificate embedded in the sensor. If the certificate validation fails, the sensor will reject the connection and generate an error3. Reference: 3: How to Become a CrowdStrike Certified Falcon Administrator"
+  },
+  {
+    "id": 114,
+    "question": "When troubleshooting the Falcon Sensor on Windows, what is the correct parameter to output the log directory to a specified file?",
+    "choices": [
+      "LOG=log.txt",
+      "\\log log.txt",
+      "C:\\CSSensorlnstall\\LogFiles",
+      "/log log.txt"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: The correct parameter to output the log directory to a specified file when troubleshooting the Falcon Sensor on Windows is /log log.txt. This parameter will create a log file named log.txt in the same folder where you run the sensor installation command. The log file will contain information about the sensor installation process, such as the parameters used, the actions performed, and any errors encountered3. Reference: 3: How to Become a CrowdStrike Certified Falcon Administrator"
+  },
+  {
+    "id": 115,
+    "question": "You have been asked to troubleshoot why Script Based Execution Monitoring (SBEM) is not enabled on a Falcon host. Which report can be used to determine if this is an issue with an old prevention policy?",
+    "choices": [
+      "Host Update Status Report",
+      "Custom Alerting Audit Trail",
+      "Prevention Policy Debug",
+      "SBEM Debug Report"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: You should use option D. SBEM Debug Report to determine whether Script Based Execution Monitoring (SBEM) is not enabled due to an old prevention policy. This report is specifically for debugging issues related to SBEM and can help you determine if there are issues related to the prevention policy."
+  },
+  {
+    "id": 116,
+    "question": "What information does the API Audit Trail Report provide?",
+    "choices": [
+      "A list of analyst login activity",
+      "A list of specific changes to prevention policy",
+      "A list of actions taken via Falcon OAuth2-based APIs",
+      "A list of newly added hosts"
+    ],
+    "answer": 2,
+    "explanation": "Explanation: The information that the API Audit Trail Report provides is a list of actions taken via Falcon OAuth2- based APIs. The API Audit Trail Report allows you to view and audit the activity and usage of the Falcon APIs by different API clients and users in your organization. You can use this report to monitor who accessed what data, when, and how via the Falcon APIs2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 117,
+    "question": "What three things does a workflow condition consist of?",
+    "choices": [
+      "A parameter, an operator, and a value",
+      "A beginning, a middle, and an end",
+      "Triggers, actions, and alerts",
+      "Notifications, alerts, and API's"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: A workflow condition consists of a parameter, an operator, and a value. A workflow condition is a rule that defines when a workflow should be triggered based on certain criteria or filters. A parameter is a variable or attribute that can be used to filter or match detection events, such as severity, tactic, or host group. An operator is a symbol or word that specifies how to compare or evaluate the parameter and the value, such as equals, contains, or greater than. A value is a constant or expression that provides the expected or desired result for the parameter, such as high, credential dumping, or default group1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 118,
+    "question": "Where should you look to find the history of the successes and failures for any Falcon Fusion workflows?",
+    "choices": [
+      "Workflow Execution log",
+      "Falcon Ul Audit Trail",
+      "Workflow Audit log",
+      "Custom Alert History"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: The place where you can find the history of the successes and failures for any Falcon Fusion workflows is the Workflow Execution log. The Workflow Execution log in the Workflow Management option allows you to view the status and results of workflow executions triggered by detection events. You can filter the log by workflow name, status, start and end time, and detection ID. You can also view the details of each execution, including the actions performed, the output received, and any errors encountered. This log can help you troubleshoot potential failures or issues with your workflows1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 119,
+    "question": "You have a new patch server that should be reachable while hosts in your environment are network contained. The server's IP address is static and does not change. Which of the following is the best approach to updating the Containment Policy to allow this?",
+    "choices": [
+      "Add an allowlist entry for the individual server's MAC address",
+      "Add an allowlist entry containing the host group that the server belongs to",
+      "Add an allowlist entry for the individual server's IP address",
+      "Add an allowlist entry containing CIDR notation for the /24 network the server belongs to"
+    ],
+    "answer": 2,
+    "explanation": "Explanation: The best approach to updating the Containment Policy to allow a new patch server that should be reachable while hosts in your environment are network contained is to add an allowlist entry for the individual server’s IP address. An allowlist entry allows you to define a list of trusted IP addresses that can communicate with your contained hosts. This way, you can isolate a host from the network while still allowing it to access essential resources or services, such as a patch server. If the server’s IP address is static and does not change, adding an individual IP address is more precise and secure than adding a host group or a network range2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 120,
+    "question": "Which of the following scenarios best describes when you would add IP addresses to the containment policy?",
+    "choices": [
+      "You want to automate the Network Containment process based on the IP address of a host",
+      "Your organization has additional IP addresses that need to be able to access the Falcon console",
+      "A new group of analysts need to be able to place hosts under Network Containment",
+      "Your organization has resources that need to be accessible when hosts are network contained"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: The scenario that best describes when you would add IP addresses to the containment policy is that your organization has resources that need to be accessible when hosts are network contained. As explained in the previous question, adding IP addresses to the containment policy allows you to create an allowlist of trusted IP addresses that can communicate with your contained hosts. This can be useful when you need to isolate a host from the network due to a potential compromise or investigation, but still want to allow it to access certain resources or services that are essential for your organization’s operations or security2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 121,
+    "question": "How many days will an inactive host remain visible within the Host Management or Trash pages?",
+    "choices": [
+      "45 days",
+      "15 days",
+      "90 days",
+      "120 days"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: An inactive host will remain visible within the Host Management or Trash pages for 90 days. An inactive host is a host that has not communicated with the Falcon platform for more than seven days. An inactive host will be moved from the Host Management page to the Trash page after seven days of inactivity. An inactive host will remain in the Trash page for 90 days before being permanently deleted from the Falcon platform. You can restore an inactive host from the Trash page if it becomes active again within 90 days1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 122,
+    "question": "Which of the following pages provides a count of sensors in Reduced Functionality Mode (RFM) by Operating System?",
+    "choices": [
+      "Support and resources",
+      "Activity Overview",
+      "Hosts Overview",
+      "Sensor Health"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: The page that provides a count of sensors in Reduced Functionality Mode (RFM) by Operating System is Sensor Health. The Sensor Health page allows you to view and monitor the health and status of all sensors in your environment. You can use this page to identify any sensors that have issues or errors, such as RFM, which is a mode that limits the sensor’s functionality due to license expiration, network connectivity loss, or certificate validation failure. You can filter the sensors by operating system, sensor version, last seen date, health events, detections, and preventions3. Reference: 3: How to Become a CrowdStrike Certified Falcon Administrator"
+  },
+  {
+    "id": 123,
+    "question": "What best describes what happens to detections in the console after clicking \"Enable Detections\" for a host which previously had its detections disabled?",
+    "choices": [
+      "Enables custom detections for the host",
+      "New detections will start appearing in the console, and all retroactive stored detections will be restored to the console for that host",
+      "New detections will start appearing in the console immediately. Previous detections will not be restored to the console for that host",
+      "Preventions will be enabled for the host"
+    ],
+    "answer": 2,
+    "explanation": "Explanation: The option that best describes what happens to detections in the console after clicking “Enable Detections” for a host which previously had its detections disabled is that new detections will start appearing in the console immediately. Previous detections will not be restored to the console for that host. The “Enable Detections” feature allows you to enable or disable the detection and prevention capabilities of the Falcon sensor on a specific host. When you disable detections for a host, the sensor will stop sending any detection or prevention events to the Falcon console, and any existing events for that host will be removed from the console. When you enable detections for a host, the sensor will resume sending any new detection or prevention events to the Falcon console, but any previous events for that host will not be restored to the console1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 124,
+    "question": "When a Linux host is in Reduced Functionality Mode (RFM) what telemetry and protection is still offered?",
+    "choices": [
+      "The sensor would provide protection as normal, without event telemetry",
+      "The sensor would provide minimal protection",
+      "The sensor would function as normal",
+      "The sensor provides no protection, and only collects Sensor Heart Beat events"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: When a Linux host is in Reduced Functionality Mode (RFM), option D. The sensor provides no protection, and only collects Sensor Heart Beat events is correct. In RFM, the sensor on the host does not provide normal protection functionalities but will only send heart beat events to indicate that it is still active."
+  },
+  {
+    "id": 125,
+    "question": "When performing targeted filtering for a host on the Host Management Page, which filter bar attribute is NOT case-sensitive?",
+    "choices": [
+      "Username",
+      "Model",
+      "Domain",
+      "Hostname"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: When performing targeted filtering for a host on the Host Management Page, the filter bar attribute that is not case-sensitive is Hostname. The Hostname attribute allows you to filter hosts by their computer name or DNS name. The Hostname filter is not case-sensitive, meaning that it will match hosts regardless of the capitalization of their names. For example, filtering by hostname=DESKTOP-1234 will match hosts with names such as DESKTOP-1234, desktop-1234, or Desktop-12342. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 126,
+    "question": "What best describes what happens to detections in the console after clicking \"Disable Detections\" for a host from within the Host Management page?",
+    "choices": [
+      "The detections for the host are removed from the console immediately and no new detections will display in the console going forward",
+      "You cannot disable detections for a host",
+      "Existing detections for the host remain, but no new detections will display in the console going forward",
+      "Preventions will be disabled for the host"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: Option C, \"Existing detections for the host remain, but no new detections will display in the console going forward,\" is the most accurate description. After clicking \"Disable Detections,\" existing detections typically remain within the console, but new detections will not be displayed."
+  },
+  {
+    "id": 127,
+    "question": "Which report lists counts of sensors in Reduced Functionality Mode (RFM) for all operating system types, and tracks how long a sensor version will be supported?",
+    "choices": [
+      "Reduce Functionality Audit Report",
+      "Sensor Health Report",
+      "Sensor Coverage Lookup",
+      "Inactive Sensor Report"
+    ],
+    "answer": 1,
+    "explanation": "Explanation: Option B, \"Sensor Health Report,\" is most likely to list counts of sensors in Reduced Functionality Mode (RFM) for all operating system types and track how long a sensor version will be supported."
+  },
+  {
+    "id": 128,
+    "question": "Which statement is TRUE regarding disabling detections on a host?",
+    "choices": [
+      "Hosts with detections disabled will not alert on blocklisted hashes or machine learning detections, but will still alert on lOA-based detections. It will remain that way until detections are enabled again",
+      "Hosts with detections disabled will not alert on anything until detections are enabled again",
+      "Hosts with detections disabled will not alert on anything for 24 hours (by default) or longer if that setting is changed",
+      "Hosts cannot have their detections disabled individually"
+    ],
+    "answer": 1,
+    "explanation": "Explanation: The statement that is true regarding disabling detections on a host is that hosts with detections disabled will not alert on anything until detections are enabled again. As explained in question 127, disabling detections for a host will stop the sensor from sending any detection or prevention events to the Falcon console, and remove any existing events for that host from the console. This means that the host will not alert on anything, including blocklisted hashes, machine learning detections, or indicator of attack (IOA)- based detections. The host will remain in this state until detections are enabled again1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 129,
+    "question": "Which of the following is TRUE regarding disabling detections for a host?",
+    "choices": [
+      "After disabling detections, the host will operate in Reduced Functionality Mode (RFM) until detections are enabled",
+      "After disabling detections, the data for all existing detections prior to disabling detections is removed from the Event Search",
+      "The DetectionSummaryEvent continues being sent to the Streaming API for that host",
+      "The detections for that host are removed from the console immediately. No new detections will display in the console going forward unless detections are enabled"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: The option that is true regarding disabling detections for a host is that the detections for that host are removed from the console immediately. No new detections will display in the console going forward unless detections are enabled. This option is essentially a repetition of question 127 and its answer. Disabling detections for a host will remove any existing detections for that host from the console and prevent any new detections from appearing in the console until detections are enabled again1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 130,
+    "question": "What is likely the reason your Windows host would be in Reduced Functionality Mode (RFM)?",
+    "choices": [
+      "Microsoft updates altering the kernel",
+      "The host lost internet connectivity",
+      "A misconfiguration in your prevention policy for the host",
+      "A Sensor Update Policy was misconfigured"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: Option A, \"Microsoft updates altering the kernel,\" is the most likely reason for a Windows host to be in Reduced Functionality Mode (RFM). RFM is typically triggered due to underlying system changes, such as kernel updates, that affect the normal operation of the sensor."
+  },
+  {
+    "id": 131,
+    "question": "On the Host management page which filter could be used to quickly identify all devices categorized as a \"Workstation\" by the Falcon Platform?",
+    "choices": [
+      "Status",
+      "Platform",
+      "Hostname",
+      "Type"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: The filter that could be used to quickly identify all devices categorized as a “Workstation” by the Falcon Platform on the Host Management page is Type. The Type filter allows you to filter hosts by their device type, such as workstation, server, or domain controller. The device type is assigned to each host based on their Active Directory domain structure. You can use the Type filter to quickly identify all hosts that have the workstation type assigned in their domain2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 132,
+    "question": "Where in the console can you find a list of all hosts in your environment that are in Reduced Functionality Mode (RFM)?",
+    "choices": [
+      "Host Dashboard",
+      "Host Management > Filter for RFM",
+      "Inactive Sensor Report",
+      "Containment Policy"
+    ],
+    "answer": 1,
+    "explanation": "Explanation: The place in the console where you can find a list of all hosts in your environment that are in Reduced Functionality Mode (RFM) is Host Management > Filter for RFM. The Host Management page allows you to view and manage all hosts in your environment that have Falcon sensors installed. You can use the filter bar to filter hosts by various attributes, such as status, platform, type, or group. You can also filter hosts by health events, such as RFM, which is a mode that limits the sensor’s functionality due to license expiration, network connectivity loss, or certificate validation failure. By filtering for RFM, you can see a list of all hosts that are in this mode1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 133,
+    "question": "An inactive host that does not contact the Falcon cloud will be automatically removed from the Host Management and Trash pages after how many days?",
+    "choices": [
+      "45 Days",
+      "60 Days",
+      "75 Days",
+      "90 Days"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: An inactive host that does not contact the Falcon cloud will be automatically removed from the Host Management and Trash pages after 90 days. An inactive host is a host that has not communicated with the Falcon platform for more than seven days. An inactive host will be moved from the Host Management page to the Trash page after seven days of inactivity. An inactive host will remain in the Trash page for 90 days before being permanently deleted from the Falcon platform. You can restore an inactive host from the Trash page if it becomes active again within 90 days1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 134,
+    "question": "When editing an existing IOA exclusion, what can NOT be edited?",
+    "choices": [
+      "The IOA name",
+      "All parts of the exclusion can be changed",
+      "The exclusion name",
+      "The hosts groups"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: When editing an existing IOA exclusion, the IOA name cannot be edited. An IOA (indicator of attack) exclusion allows you to define custom rules for excluding suspicious behavior from detection or prevention based on process execution, file write, network connection, or registry events. The IOA name is a predefined name that identifies the type of IOA behavior that you want to exclude, such as “Suspicious Process Execution - Script Interpreter Executing File”. The IOA name cannot be changed when editing an existing IOA exclusion, as it is linked to a specific IOA rule in the Falcon platform. However, you can edit other parts of the IOA exclusion, such as the exclusion name, the hosts groups, and the filter criteria2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 135,
+    "question": "Which of the follow should be used with extreme caution because it may introduce additional security risks such as malware or other attacks which would not be recorded, detected, or prevented based on the exclusion syntax?",
+    "choices": [
+      "Sensor Visibility Exclusion",
+      "Machine Learning Exclusions",
+      "IOC Exclusions",
+      "IOA Exclusions"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: The option that should be used with extreme caution because it may introduce additional security risks such as malware or other attacks which would not be recorded, detected, or prevented based on the exclusion syntax is IOA Exclusions. An IOA (indicator of attack) exclusion allows you to define custom rules for excluding suspicious behavior from detection or prevention based on process execution, file write, network connection, or registry events. However, using IOA exclusions may reduce the visibility and protection of the Falcon sensor, as it may allow malicious activity to bypass the sensor’s detection and prevention capabilities. Therefore, you should use IOA exclusions with extreme caution and only when necessary2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 136,
+    "question": "Which of the following is NOT an available action for an API Client?",
+    "choices": [
+      "Edit an API Client",
+      "Reset an API Client Secret",
+      "Retrieve an API Client Secret",
+      "Delete an API Client"
+    ],
+    "answer": 2,
+    "explanation": "Explanation: The option that is not an available action for an API Client is Retrieve an API Client Secret. An API Client is an entity that represents a user or application that can access the Falcon platform programmatically via the Falcon APIs. An API Client has an API Client ID and an API Client Secret, which are used for authenticating and authorizing API requests. You can create and manage API Clients in the API Clients and Keys page in the Falcon console. The available actions for an API Client are Edit an API Client, Reset an API Client Secret, and Delete an API Client. You cannot retrieve an API Client Secret after it has been created, as it is only displayed once during creation for security reasons2. Explanation: Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 137,
+    "question": "How can a API client secret be viewed after it has been created?",
+    "choices": [
+      "Within the API management page, API client secrets can be accessed within the \"edit client\" functionality",
+      "The API client secret must be reset or a new client created as the secret cannot be viewed after it has been created",
+      "The API client secret can be provided by support via direct email request from a Falcon Administrator",
+      "Selecting \"show secret\" within the 3-dot dropdown menu will reveal the secret for the selected api client"
+    ],
+    "answer": 1,
+    "explanation": "Explanation: The way an API client secret can be viewed after it has been created is that the API client secret must be reset or a new client created as the secret cannot be viewed after it has been created. As explained in question 137, an API client secret is only displayed once during creation for security reasons. If you lose or forget your API client secret, you cannot view it again in the Falcon console. You have two options to resolve this issue: either reset your API client secret or create a new API client. Resetting your API client secret will generate a new secret for your existing API client, which will invalidate any previous secret. Creating a new API client will generate a new API client ID and secret, which will require you to update any applications or scripts that use the Falcon APIs2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 138,
+    "question": "What will happen to a host if it is not assigned a Sensor Update policy?",
+    "choices": [
+      "The host will uninstall the Sensor and provide an alert to the installation team",
+      "The host will automatically update to the newest sensor version and auto-update to future release",
+      "The host will automatically create a custom Sensor Update policy",
+      "The host will use the Default Sensor Update policy"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: The option that describes what will happen to a host if it is not assigned a Sensor Update policy is that the host will use the Default Sensor Update policy. A Sensor Update policy is a policy that controls how and when the Falcon sensor is updated on a host. You can create and assign custom Sensor Update policies to different hosts or groups in your environment. However, if a host is not assigned to a specific Sensor Update policy, it will inherit the settings from the Default Sensor Update policy. The Default Sensor Update policy is a “catch-all” policy that is enabled by default and has the “Uninstall and Maintenance Protection” feature turned on. You can modify the settings of the Default Sensor Update policy, but you cannot delete or disable it1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 139,
+    "question": "Which statement describes what is recommended for the Default Sensor Update policy?",
+    "choices": [
+      "The Default Sensor Update policy should align to an organization's overall sensor updating practice while leveraging Auto N-1 and Auto N-2 configurations where possible",
+      "The Default Sensor Update should be configured to always automatically upgrade to the latest sensor version",
+      "Since the Default Sensor Update policy is pre-configured with recommend settings out of the box, configuration of the Default Sensor Update policy is not required",
+      "No configuration is required. Once a Custom Sensor Update policy is created the Default Sensor Update policy is disabled"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: The statement that describes what is recommended for the Default Sensor Update policy is that the Default Sensor Update policy should align to an organization’s overall sensor updating practice while leveraging Auto N-1 and Auto N-2 configurations where possible. As explained in question 139, the Default Sensor Update policy is a “catch-all” policy that applies to any host that is not assigned to a specific Sensor Update policy. Therefore, it is recommended that the Default Sensor Update policy should align to your organization’s overall sensor updating practice, such as how frequently and how quickly you want to update your sensors. It is also recommended that you leverage the Auto N-1 and Auto N-2 configurations, which allow you to automatically update your sensors to the latest or second- latest sensor version without requiring manual intervention1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 140,
+    "question": "Why do Sensor Update policies need to be configured for each OS (Windows, Mac, Linux)?",
+    "choices": [
+      "To bundle the Sensor and Prevention policies together into a deployment package",
+      "Sensor Update policies are OS dependent",
+      "To assist with auditing and change management",
+      "This is false. One policy can be applied to all Operating Systems"
+    ],
+    "answer": 1,
+    "explanation": "Explanation: Sensor Update policies need to be configured for each OS (Windows, Mac, Linux) because Sensor Update policies are OS dependent. A Sensor Update policy is a policy that controls how and when the Falcon sensor is updated on a host. Sensor Update policies are specific to each operating system type, as different operating systems have different sensor versions, features, and requirements. Therefore, you need to create and assign separate Sensor Update policies for each operating system type in your environment1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 141,
+    "question": "What is the purpose of the Default Sensor Policy?",
+    "choices": [
+      "A mechanism to deploy the oldest supported version of the Falcon Sensor.",
+      "Tests the sensor configuration settings before deployment.",
+      "Used to reset all sensor settings to Default.",
+      "Acts as a \"catch all\" policy if no other Sensor Policies are applied."
+    ],
+    "answer": 3,
+    "explanation": "Explanation: The purpose of the Default Sensor Policy is that it acts as a “catch all” policy if no other Sensor Policies are applied. A Sensor Policy is a policy that defines the detection and prevention settings for the Falcon sensor on a host. You can create and assign custom Sensor Policies to different hosts or groups in your environment. However, if a host is not assigned to a specific Sensor Policy, it will inherit the settings from the Default Sensor Policy. The Default Sensor Policy is a “catch-all” policy that is enabled by default and has the “Malware Protection” feature turned on. You can modify the settings of the Default Sensor Policy, but you cannot delete or disable it1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 142,
+    "question": "What best describes the relationship between Sensor Update policies and Operating Systems?",
+    "choices": [
+      "Windows and Mac share Sensor Update policies. Linux requires its own set of polices based on the different kernel versions",
+      "Sensor Update polices are not Operating System specific. One policy can be applied to all Operating Systems",
+      "Windows has its own Sensor Update polices. But Mac and Linux share Sensor Update policies",
+      "A Sensor Update policy must be configured for each Operating System (Windows, Mac, Linux)"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: The option that describes the relationship between Sensor Update policies and Operating Systems is that a Sensor Update policy must be configured for each Operating System (Windows, Mac, Linux). This option is essentially a repetition of question 141 and its answer. Sensor Update policies are specific to each operating system type, as different operating systems have different sensor versions, features, and requirements. Therefore, you need to create and assign separate Sensor Update policies for each operating system type in your environment1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 143,
+    "question": "Which of the following prevention policy settings monitors contents of scripts and shells for execution of malicious content on compatible operating systems?",
+    "choices": [
+      "Script-based Execution Monitoring",
+      "FileSystem Visibility",
+      "Engine (Full Visibility)",
+      "Suspicious Scripts and Commands"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: The prevention policy setting that monitors contents of scripts and shells for execution of malicious content on compatible operating systems is Script-based Execution Monitoring. Script-based Execution Monitoring is a feature that enables the Falcon sensor to monitor and prevent malicious script execution on Windows systems. The feature uses machine learning and behavioral analysis to detect suspicious scripts or commands executed by various script interpreters, such as PowerShell, WScript, CScript, or Bash. You can enable or disable Script-based Execution Monitoring in the Prevention Policy for Windows hosts1. Reference: 1: Falcon Administrator Learning Path | Infographic | CrowdStrike"
+  },
+  {
+    "id": 144,
+    "question": "The Falcon Administrator has created a new prevention policy to apply to the \"Servers\" group; however, when applying the new prevention policy this group is not appearing in the list of available groups. What is the most likely issue?",
+    "choices": [
+      "The new prevention policy should be enabled first",
+      "The \"Servers\" group already has a policy applied to it",
+      "The \"Servers\" group must be disabled first",
+      "Host type was not defined correctly within the prevention policy"
+    ],
+    "answer": 1,
+    "explanation": "Explanation: The most likely issue for not being able to apply a new prevention policy to the “Servers” group is that the “Servers” group already has a policy applied to it. A prevention policy is a policy that defines the prevention capabilities and settings for the Falcon sensor on a host. You can create and assign custom prevention policies to different hosts or groups in your environment. However, you can only assign one prevention policy per host or group at a time. If a host or group already has a prevention policy applied to it, you cannot apply another prevention policy to it unless you remove or replace the existing one2. Reference: 2: Cybersecurity Resources | CrowdStrike"
+  },
+  {
+    "id": 145,
+    "question": "What is the purpose of the Machine-Learning Prevention Monitoring Report?",
+    "choices": [
+      "It is designed to give an administrator a quick overview of machine-learning aggressiveness settings as well as the numbers of items actually quarantined",
+      "It is the dashboard used by an analyst to view all items quarantined and to release any items deemed non-malicious",
+      "It is the dashboard used to see machine-learning preventions, and it is used to identify spikes in activity and possible targeted attacks",
+      "It is designed to show malware that would have been blocked in your environment based on different Machine-Learning Prevention settings"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: Machine-Learning Prevention Monitoring dashboard: Use this dashboard to view malware that would have been blocked in your environment over the selected timeframe based on different Machine Learning Prevention settings (Cautious, Moderate, Aggressive or Extra Aggressive)."
+  },
+  {
+    "id": 146,
+    "question": "You need to have the ability to monitor suspicious VBA macros. Which Sensor Visibility setting should be turned on within the Prevention policy settings?",
+    "choices": [
+      "Script-based Execution Monitoring",
+      "Interpreter-Only",
+      "Additional User Mode Data",
+      "Engine (Full Visibility)"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: Turn on the Script-Based Execution Monitoring prevention policy setting to enable the \"Falcon sensor to monitor the contents of scripts and shells that are popular mechanisms for executing malicious code on hosts. This setting does not kill or block scripts.\" Scripting languages: Excel 4.0 macros JScript VBA Macros VBScript The Sensor Visibility setting that should be turned on within the Prevention policy settings to monitor suspicious VBA macros is Script-based Execution Monitoring. Script-based Execution Monitoring is a feature that enables the Falcon sensor to monitor and prevent malicious script execution on Windows systems. The feature uses machine learning and behavioral analysis to detect suspicious scripts or commands executed by various script interpreters, such as PowerShell, WScript, CScript, or Bash. VBA (Visual Basic for Applications) is a scripting language that can be embedded in Microsoft Office documents, such as Word or Excel. VBA macros can be used to automate tasks or perform actions within the documents, but they can also be abused by attackers to deliver malware or execute malicious code. Script-based Execution Monitoring can help detect and prevent such attacks by monitoring the contents of VBA macros for execution of malicious content. Reference: [Falcon Administrator Learning Path | Infographic | CrowdStrike]"
+  },
+  {
+    "id": 147,
+    "question": "The Customer ID (CID) is important in which of the following scenarios?",
+    "choices": [
+      "When adding a user to the Falcon console under the Users application",
+      "When performing the sensor installation process",
+      "When setting up API keys",
+      "When performing a Host Search"
+    ],
+    "answer": 1,
+    "explanation": "Explanation: The Customer ID (CID) is important in which of the following scenarios: when performing the sensor installation process and when setting up API keys. The CID is a unique identifier for your organization that is required for authenticating your sensor installation and communication with the Falcon cloud. You need to provide your CID when installing the Falcon sensor on a host, either by using a command-line parameter or by using the falconctl tool. The CID is also required for setting up API keys, which are used for accessing the Falcon platform programmatically via the Falcon APIs. You need to provide your CID when creating an API client and key in the API Clients and Keys page in the Falcon console. Reference: [Cybersecurity Resources | CrowdStrike]"
+  },
+  {
+    "id": 148,
+    "question": "What may prevent a user from logging into Falcon via single sign-on (SSO)?",
+    "choices": [
+      "The SSO username doesn't match their email address in Falcon",
+      "The maintenance token has expired",
+      "Falcon is in reduced functionality mode",
+      "The user never configured their security questions"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: The option that may prevent a user from logging into Falcon via single sign-on (SSO) is that the SSO username doesn’t match their email address in Falcon. SSO is a feature that allows you to use an external identity provider (IdP) to authenticate and authorize users to access the Falcon platform. SSO simplifies and streamlines the login process, as users only need to remember one set of credentials for multiple applications. However, SSO requires that the username in the IdP matches the email address in Falcon for each user. If there is a mismatch between the username and the email address, the user will not be able to log into Falcon via SSO. Reference: [Cybersecurity Resources | CrowdStrike]"
+  },
+  {
+    "id": 149,
+    "question": "When a host belongs to more than one host group, how is sensor update precedence determined?",
+    "choices": [
+      "Groups have no impact on sensor update policies",
+      "Sensors of hosts that belong to more than one group must be manually updated",
+      "The highest precedence policy from the most important group is applied to the host",
+      "All of the host's groups are examined in aggregate and the policy with highest precedence is applied to the host"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: The option that describes how sensor update precedence is determined when a host belongs to more than one host group is that all of the host’s groups are examined in aggregate and the policy with highest precedence is applied to the host. A Sensor Update policy is a policy that controls how and when the Falcon sensor is updated on a host. You can create and assign custom Sensor Update policies to different hosts or groups in your environment. Each Sensor Update policy has a precedence value, which determines its priority over other policies. The higher the precedence value, the higher the priority. If a host belongs to more than one host group, each with a different Sensor Update policy assigned, then all of the host’s groups are examined in aggregate and the policy with highest precedence among them is applied to the host. Reference: [Falcon Administrator Learning Path | Infographic | CrowdStrike]"
+  },
+  {
+    "id": 150,
+    "question": "A sensor that has not contacted the Falcon cloud will be automatically deleted from the hosts list after how many days?",
+    "choices": [
+      "45 Days",
+      "60 Days",
+      "30 Days",
+      "90 Days"
+    ],
+    "answer": 0,
+    "explanation": "Explanation: A sensor that has not contacted the Falcon cloud will be automatically deleted from the hosts list after 90 days. A sensor that has not contacted the Falcon cloud for more than seven days is considered inactive and will be moved from the Host Management page to the Trash page. An inactive sensor will remain in the Trash page for 90 days before being permanently deleted from the Falcon platform. You can restore an inactive sensor from the Trash page if it contacts the Falcon cloud again within 90 days. Reference: [Falcon Administrator Learning Path | Infographic | CrowdStrike]"
+  },
+  {
+    "id": 151,
+    "question": "You have a Windows host on your network in Reduced functionality mode (RFM). While the system is in RFM, which of the following is TRUE?",
+    "choices": [
+      "System monitoring will be unavailable",
+      "Event reporting will be unavailable",
+      "Prevention patterns will not be triggered",
+      "Some detection patterns and preventions will not be triggered"
+    ],
+    "answer": 3,
+    "explanation": "Explanation: The option that is true when a Windows host is in Reduced Functionality Mode (RFM) is that some detection patterns and preventions will not be triggered. RFM is a mode that limits the sensor’s functionality due to license expiration, network connectivity loss, or certificate validation failure. When a Windows sensor is in RFM, it will only provide basic prevention capabilities, such as blocking known malware hashes and preventing script execution from the %TEMP% directory. The sensor will not send any telemetry or detection events to the Falcon platform, and will not receive any policy or update changes from the Falcon cloud. This means that some detection patterns and preventions that rely on telemetry, machine learning, or cloud analysis will not be triggered. Reference: [Falcon Administrator Learning Path | Infographic | CrowdStrike]"
+  },
+  {
+    "id": 152,
+    "question": "What can exclusions be applied to?",
+    "choices": [
+      "Individual hosts selected by the administrator",
+      "Either all hosts or specified groups",
+      "Only the default host group",
+      "Only the groups selected by the administrator"
+    ],
+    "answer": 1,
+    "explanation": "Explanation: The option that describes what exclusions can be applied to is that exclusions can be applied to either all hosts or specified groups. An exclusion is a rule that defines what files, folders, processes, IP addresses, or domains should be excluded from detection or prevention by the Falcon sensor. You can create and manage exclusions in the Exclusions page in the Falcon console. You can apply exclusions to either all hosts in your environment or to specific host groups that you select. You cannot apply exclusions to individual hosts selected by the administrator. Reference: [Cybersecurity Resources | CrowdStrike]"
+  },
+  {
+    "id": 153,
+    "question": "Where can you find hosts that have been offline for ten minutes or longer?",
+    "choices": [
+      "Host Management",
+      "Sensor Coverage Dashboard",
+      "Host Groups"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第1組 Q1｜PDF 第1頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 1,
+    "sourcePage": 1,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 154,
+    "question": "During a Windows system investigation via Real Time Response, an RTR Active Responder is unable to execute a custom PowerShell script for finding specific system artifacts. What is likely restricting the responder from executing the PowerShell script?",
+    "choices": [
+      "Put-and-Run is not enabled in the response policy",
+      "Custom Scripts is not enabled in the response policy",
+      "Script-Based Execution Monitoring is not enabled in the prevention policy",
+      "The responder requires the RTR Administrator role"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q2｜PDF 第1頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 2,
+    "sourcePage": 1,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 155,
+    "question": "You need to look up a Red Hat Enterprise Linux (RHEL) system in Host Management. What filter would apply?",
+    "choices": [
+      "Platform",
+      "OS version",
+      "Type",
+      "OU"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q3｜PDF 第2頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 3,
+    "sourcePage": 2,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 156,
+    "question": "Which statement best describes user permissions in Falcon?",
+    "choices": [
+      "Custom user role permission sets can be shared with all CrowdStrike customers globally",
+      "Users can only have predefined default roles assigned to them before using a custom role",
+      "User permissions can be defined by default or custom roles as needed",
+      "Each Falcon permission needs to be selected when the user account is created"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第1組 Q4｜PDF 第2頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 4,
+    "sourcePage": 2,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 157,
+    "question": "What prevention policy settings must be enabled to quarantine files on the host?",
+    "choices": [
+      "Quarantine Files; Windows Anti-Malware Execution Blocking",
+      "Malware Protection; Custom Execution Blocking",
+      "Next-Gen Antivirus Prevention sliders; Quarantine & Security Center Registration",
+      "Advanced Remediation Actions; Quarantine level set to Aggressive"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第1組 Q5｜PDF 第3頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 5,
+    "sourcePage": 3,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 158,
+    "question": "To improve the organization's security posture, you are designing a Fusion SOAR workflow to generate an alert when critical vulnerabilities are detected by Falcon. When creating a new workflow from scratch, what component of the workflow must be configured first?",
+    "choices": [
+      "Action",
+      "Trigger",
+      "Condition",
+      "Workflow Name"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q6｜PDF 第3頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 6,
+    "sourcePage": 3,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 159,
+    "question": "What best describes the relationship between Sensor Update policies and Operating Systems?",
+    "choices": [
+      "A Sensor Update policy must be configured for each Operating System (Windows, Mac, Linux)",
+      "Sensor Update policies are not Operating System specific; one policy can be applied to all Operating Systems",
+      "Windows has its own Sensor Update policies; Mac and Linux share Sensor Update policies",
+      "Windows and Mac share Sensor Update policies; Linux requires its own set of policies based on the different kernel versions"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第1組 Q7｜PDF 第4頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 7,
+    "sourcePage": 4,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 160,
+    "question": "Your security team is noticing that certain privacy-sensitive information such as the URL, HTTP Header and POST bodies are missing from HTTP related detections. What is likely the cause for this?",
+    "choices": [
+      "The prevention policy was configured to have an aggressive prevention setting, but only a cautious detection setting",
+      "The prevention policy has been configured to redact HTTP detection details",
+      "The network perimeter firewall blocked the HTTP connection attempts so there was nothing for Falcon to detect",
+      "The prevention policy was never configured to generate HTTP detections"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q8｜PDF 第4頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 8,
+    "sourcePage": 4,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 161,
+    "question": "You want to add an additional layer of security to high-risk Real Time Response commands for your environment. Where do you configure MFA for RTR within the UI?",
+    "choices": [
+      "General settings",
+      "Notifications",
+      "Response policies",
+      "Containment policy"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第1組 Q9｜PDF 第5頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 9,
+    "sourcePage": 5,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 162,
+    "question": "How do you enable Falcon to quarantine files?",
+    "choices": [
+      "Through Prevention policy settings",
+      "Through General Settings",
+      "Through manual file deletion",
+      "Through system restore"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第1組 Q10｜PDF 第5頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 10,
+    "sourcePage": 5,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 163,
+    "question": "Why would you add IP addresses to a containment policy?",
+    "choices": [
+      "You want to automate the Network Containment process based on the IP address of a host",
+      "A new group of analysts need to be able to place hosts under Network Containment",
+      "Your organization has resources that need to be accessible when hosts are network contained",
+      "Your organization has additional IP addresses that need to be able to access the Falcon console"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第1組 Q11｜PDF 第6頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 11,
+    "sourcePage": 6,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 164,
+    "question": "You are attempting to install the Falcon sensor on a host with a slow internet connection, and the installation fails after 20 minutes. What parameter can be used to override the 20-minute default provisioning window?",
+    "choices": [
+      "Timeout=30",
+      "ProvNoWait=1",
+      "Timeout=0",
+      "DelayedStart=1"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q12｜PDF 第6頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 12,
+    "sourcePage": 6,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 165,
+    "question": "What is an example of when you will need to refer to your Customer ID+ Checksum (CIDC)?",
+    "choices": [
+      "When uninstalling a Falcon Sensor",
+      "When you need to find a specific host in Host Management",
+      "When defining host group assignment criteria",
+      "When installing a new Falcon Sensor"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第1組 Q13｜PDF 第7頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 13,
+    "sourcePage": 7,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 166,
+    "question": "What default user role can manage API credentials?",
+    "choices": [
+      "Falcon Security Lead",
+      "Falcon Administrator",
+      "Falcon API Manager",
+      "Endpoint Manager"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q14｜PDF 第7頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 14,
+    "sourcePage": 7,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 167,
+    "question": "When troubleshooting a Windows sensor that appears to be installed but is not running, what should be verified to ensure they are installed and running?",
+    "choices": [
+      "LMHosts and Windows Base Filtering Engine",
+      "Windows firewall and internet connectivity to the CrowdStrike cloud",
+      "Network Store Interface and Network List Service"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第1組 Q15｜PDF 第8頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 15,
+    "sourcePage": 8,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 168,
+    "question": "What happens to policy assignment when a host does not match any custom host group criteria?",
+    "choices": [
+      "The last active policy remains",
+      "The default policy is applied",
+      "No policy is applied",
+      "The most restrictive policy is applied"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q16｜PDF 第8頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 16,
+    "sourcePage": 8,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 169,
+    "question": "Your incident responder team is migrating existing workflows into Fusion SOAR workflows so that they execute natively in Falcon. The workflow imports are failing. What format must the workflows be in order to successfully import them into Fusion SOAR?",
+    "choices": [
+      "YAML",
+      "CSV",
+      "SOAR",
+      "JSON"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第1組 Q17｜PDF 第9頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 17,
+    "sourcePage": 9,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 170,
+    "question": "What log would you use to investigate unusual activity invoked with a script interfacing with the Falcon platform?",
+    "choices": [
+      "Falcon UI audit",
+      "RTR session audit",
+      "Prevention policy debug",
+      "API audit"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第1組 Q18｜PDF 第9頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 18,
+    "sourcePage": 9,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 171,
+    "question": "Detections related to a penetration test on a particular server are currently generating thousands of entries in the console. Your leadership does not need to track the detections in Falcon. What should you do to allow your team to focus on more relevant detections?",
+    "choices": [
+      "Delete the detections in the console and contain the server undergoing the test",
+      "Temporarily disable detections for the server in Host Management and reenable after the test is done",
+      "Create a Fusion Workflow to email the SOC team every time the penetration test generates a detection",
+      "Permanently disable detections for the server in Host Management"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q19｜PDF 第10頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 19,
+    "sourcePage": 10,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 172,
+    "question": "Where can you find a list of hosts that have not communicated with the CrowdStrike Cloud?",
+    "choices": [
+      "Host Groups",
+      "Inactive Sensors",
+      "Activity Dashboard",
+      "Sensor Report"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q20｜PDF 第10頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 20,
+    "sourcePage": 10,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 173,
+    "question": "Your development team is working on a new enterprise application, but Falcon starts creating alerts during testing. The alert points to C:\\Users\\Bob\\DevCode\\felix.dll. In the detection, you see that it is triggering only on a specific Falcon IOA. What action should be taken to resolve this issue?",
+    "choices": [
+      "Create an exclusion for the felix.dll file",
+      "Create an IOA exclusion for C:\\Users\\Bob\\DevCode\\felix.dll",
+      "Create a separate Host Group for development machines and apply a less restrictive policy",
+      "Create a Custom IOC and set it to Allow for C:\\Users\\Bob\\DevCode\\felix.dll"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q21｜PDF 第11頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 21,
+    "sourcePage": 11,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 174,
+    "question": "What least privilege role should be given to a user who needs to extract files with RTR?",
+    "choices": [
+      "Real Time Responder - Active Responder",
+      "Falcon Security Lead",
+      "Real Time Responder - Administrator",
+      "Falcon Investigator"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第1組 Q22｜PDF 第11頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 22,
+    "sourcePage": 11,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 175,
+    "question": "How are sensor updates managed and enforced across multiple hosts in Falcon?",
+    "choices": [
+      "Prevention policies assigned to host groups",
+      "Manual updates on each host",
+      "Sensor update policies assigned to host groups",
+      "Direct installation"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第1組 Q23｜PDF 第12頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 23,
+    "sourcePage": 12,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 176,
+    "question": "Which default user role will allow you to see all analyst session details?",
+    "choices": [
+      "Falcon Security Lead",
+      "Real Time Response - Read-Only Analyst",
+      "Falcon Administrator",
+      "Real Time Response - Administrator"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第1組 Q24｜PDF 第12頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 24,
+    "sourcePage": 12,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 177,
+    "question": "What policy setting should be selected for a new host when it has an existing antivirus?",
+    "choices": [
+      "Extra Aggressive Level ML",
+      "Aggressive Level ML",
+      "Moderate Level ML",
+      "Cautious Level ML"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第1組 Q25｜PDF 第13頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 25,
+    "sourcePage": 13,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 178,
+    "question": "You are assigning sensor group tags during installation. What is the maximum allowed length of all tags?",
+    "choices": [
+      "237 characters",
+      "256 characters",
+      "50 characters",
+      "100 characters"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q26｜PDF 第13頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 26,
+    "sourcePage": 13,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 179,
+    "question": "Which ML exclusion pattern would be the most accurate for all .exe binaries in \"C:\\Program Files\\Software\\\", including any subfolders of Software?",
+    "choices": [
+      "Program Files\\Software* .exe",
+      "Program Files\\Software*.exe",
+      "Program Files\\Software* *.exe",
+      "***.exe"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第1組 Q27｜PDF 第14頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 27,
+    "sourcePage": 14,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 180,
+    "question": "You have 100 hashes that have been prohibited by management and need to be blocked within your organization. Using Falcon, what is the best way to accomplish this?",
+    "choices": [
+      "Navigate to Configure > IOC Management. Add a custom IOC. Add the list of hashes. Set the action to Block. Verify the prevention policy includes Custom Blocking under Execution Blocking.",
+      "Navigate to Configure > Prevention policies. Add an IOC Policy. Add the list of hashes as CSV file. Set the action to Block. Verify Custom Execution Blocking is active.",
+      "Navigate to Configure > IOC Management. Add a custom Prevention Policy. Add the list of hashes. Set the action to Block. Verify the policy includes Custom Execution Blocking.",
+      "Navigate to Configure > Prevention policies. Add an IOC Policy. Add the list of hashes as CSV file. Set the action to Block and Alert. Verify Custom Blocking inside Execution Blocking is active."
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第1組 Q28｜PDF 第14頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 28,
+    "sourcePage": 14,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 181,
+    "question": "Which report would show you an overview of the top ten most-applied policies by sensors in your environment?",
+    "choices": [
+      "Scheduled reports",
+      "Sensor report dashboard",
+      "Executive summary",
+      "Sensor policy daily report"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q29｜PDF 第15頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 29,
+    "sourcePage": 15,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 182,
+    "question": "Which Windows prevention policy setting monitors contents of shells for execution of malicious content?",
+    "choices": [
+      "Script-based execution visibility",
+      "Suspicious Scripts and Commands",
+      "Enhanced exploitation visibility",
+      "Additional user mode data visibility"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q30｜PDF 第15頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 30,
+    "sourcePage": 15,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 183,
+    "question": "Detections related to a penetration test on a particular server are currently generating thousands of entries in the console. Your leadership does not need to track the detections in Falcon. What should you do to allow your team to focus on more relevant detections?",
+    "choices": [
+      "Create a Fusion Workflow to email the SOC team every time the penetration test generates a detection",
+      "Implement an SVE on the particular host",
+      "Temporarily disable detections for the server in Host Management and re-enable after the test is done",
+      "Use Real Time Response to kill the offending process on the server"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第1組 Q31｜PDF 第16頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 31,
+    "sourcePage": 16,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 184,
+    "question": "Which report provides a filterable high-level overview of host information such as OS version, Device Type and Machine Domain, and also provides an active sensor heat map for a quick environment review?",
+    "choices": [
+      "Sensor Status Report",
+      "Sensor Report",
+      "Sensor Overview Report",
+      "Sensor Policy Daily Report"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q32｜PDF 第16頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 32,
+    "sourcePage": 16,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 185,
+    "question": "What update policy does a sensor receive when it does not have a group assignment?",
+    "choices": [
+      "Top precedence policy",
+      "Default policy",
+      "Auto N-1 policy"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q33｜PDF 第17頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 33,
+    "sourcePage": 17,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 186,
+    "question": "What is the purpose of the Machine-Learning Prevention Monitoring Audit Log?",
+    "choices": [
+      "It is the dashboard used by an analyst to view all items quarantined and to release any items deemed non-malicious",
+      "It is the dashboard used to see machine-learning preventions, and it is used to identify spikes in activity and possible targeted attacks",
+      "It is designed to show malicious processes that would have been blocked in your environment based on different Machine-Learning Prevention settings",
+      "It is designed to give an administrator a quick overview of machine-learning aggressiveness settings as well as the numbers of items actually quarantined"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第1組 Q34｜PDF 第17頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 34,
+    "sourcePage": 17,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 187,
+    "question": "When installing the Falcon Sensor manually on Microsoft Windows, where is the installation log data stored?",
+    "choices": [
+      "%LOCALAPPDATA%\\Temp",
+      "%SYSTEMROOT%\\Temp",
+      "%SYSTEMROOT%\\Logs",
+      "%LOCALAPPDATA%\\Logs"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第1組 Q35｜PDF 第18頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 35,
+    "sourcePage": 18,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 188,
+    "question": "When searching for a host network address, which IP notation should be used?",
+    "choices": [
+      "10 10105,1010108",
+      "1010102,10 10107",
+      "192.168.5.1/24",
+      "192 168 5 1-100"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第1組 Q36｜PDF 第18頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 36,
+    "sourcePage": 18,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 189,
+    "question": "You are tasked with creating a group for hosts running Windows 10. What kind of group should you create to make sure all applicable hosts are included in your environment?",
+    "choices": [
+      "Create a static group with the assignment rule criteria set to OS Type Workstation",
+      "Create a dynamic group with the assignment rule criteria set to OS Type Workstation",
+      "Create a static group with the assignment rule criteria for OS Version set to Windows 10",
+      "Create a dynamic group with the assignment rule criteria for OS Version set to Windows 10"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第1組 Q37｜PDF 第19頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 37,
+    "sourcePage": 19,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 190,
+    "question": "You are deploying the Falcon sensor to 500 hosts. Hosts in an Organizational Unit need a specific exclusion that was previously identified. This OU is expected to add members over the next quarter. What is the best way to create a host group for this OU?",
+    "choices": [
+      "Create a Dynamic Group targeting Windows 10 OS in the domain",
+      "Create a dynamic group with an assignment rule that excludes the OU",
+      "Create a dynamic group with an assignment rule that filters for the OU"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第1組 Q38｜PDF 第19頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 38,
+    "sourcePage": 19,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 191,
+    "question": "When configuring a third-party integration to communicate with the Falcon API, which credential combination must be generated first?",
+    "choices": [
+      "Access Key and Secret Key",
+      "Integration Key and Customer ID",
+      "API Client and Secret Key",
+      "OAuth2 Token and Client Secret"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第1組 Q39｜PDF 第20頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 39,
+    "sourcePage": 20,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 192,
+    "question": "Your organization wants to monitor the use of remote access software that is currently authorized. The executable is called remote.exe. How would you trigger a detection for review of any process named remote.exe?",
+    "choices": [
+      "Write an IOA rule to monitor process creation of .*\\\\remote\\.exe",
+      "Create an exclusion for remote.exe and set a workflow to email you every time the exclusion is used",
+      "Write a scheduled search looking for ProcessRollup2 events for remote.exe",
+      "Write an IOC for remote.exe"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第1組 Q40｜PDF 第20頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 40,
+    "sourcePage": 20,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 193,
+    "question": "When an API client is created, what two pieces of information must be generated as a pair to successfully identify and validate your API integrations?",
+    "choices": [
+      "Customer ID and Integration ID",
+      "Client ID and Secret",
+      "Customer ID and Secret",
+      "Client ID and OAuth2 ID"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q41｜PDF 第21頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 41,
+    "sourcePage": 21,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 194,
+    "question": "You will be testing detections with pentest and security tooling on your host. How can a workflow be created to automatically assign any detection related to your pentest to yourself in real time?",
+    "choices": [
+      "Create an Event trigger workflow that triggers on an EPP Detection with an action to assign the detection to yourself",
+      "Create an Event trigger workflow that triggers on an EPP Detection with conditions looking for the desired hostname",
+      "Create an alert on usage of the tools and assign the alerts to you automatically via workflow",
+      "Create an IOC for the host to trigger associated detections and assign them to you via workflow"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第1組 Q42｜PDF 第21頁",
+    "sourceGroup": 1,
+    "sourceQuestion": 42,
+    "sourcePage": 21,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 195,
+    "question": "What is the primary purpose of custom IOA rules?",
+    "choices": [
+      "Manage system updates",
+      "Configure network settings",
+      "Block known malware",
+      "Identify malicious behavior"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第2組 Q1｜PDF 第22頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 1,
+    "sourcePage": 22,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 196,
+    "question": "What information can be found in the Real Time Response (RTR) Audit Log?",
+    "choices": [
+      "Session end time, command return results, and file activity",
+      "Real Time Response (RTR) information is not collected via audit logs",
+      "Session start time, duration, user, hostname, commands used, and retrieved files",
+      "IP Address, Prevention Policy, recent detections, and host group assignment"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第2組 Q2｜PDF 第22頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 2,
+    "sourcePage": 22,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 197,
+    "question": "What is the primary purpose of audit logs in Falcon?",
+    "choices": [
+      "Track configuration changes",
+      "Trace file changes",
+      "Monitor system performance"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q3｜PDF 第23頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 3,
+    "sourcePage": 23,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 198,
+    "question": "A member of your SECOPS team is building custom scripts for RTR, but they are unable to save or share them in Falcon. What additional role do they need?",
+    "choices": [
+      "Falcon Scripts Manager",
+      "Real Time Response - Administrator",
+      "Real Time Response - Active Responder",
+      "Workflow Author"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第2組 Q4｜PDF 第23頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 4,
+    "sourcePage": 23,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 199,
+    "question": "An inactive host does not contact the Falcon cloud. What is the default number of days after which it is automatically removed from the Host Management page?",
+    "choices": [
+      "45 Days",
+      "30 Days",
+      "90 Days"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q5｜PDF 第24頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 5,
+    "sourcePage": 24,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 200,
+    "question": "From the Host management page, what is the best field to filter by for Domain Controllers to obtain sensor version information?",
+    "choices": [
+      "OS Version",
+      "Type",
+      "Platform",
+      "Sensor Version"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第2組 Q6｜PDF 第24頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 6,
+    "sourcePage": 24,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 201,
+    "question": "In addition to Host Groups, what other groups can a prevention policy be applied to?",
+    "choices": [
+      "Machine Learning Groups",
+      "Operating System Groups",
+      "Custom IOA Rule Groups",
+      "Custom IOC Groups"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第2組 Q7｜PDF 第25頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 7,
+    "sourcePage": 25,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 202,
+    "question": "In order to quarantine files on the host, what prevention policy settings must be enabled?",
+    "choices": [
+      "Next-Gen Antivirus Prevention sliders and \"Quarantine & Security Center Registration\"",
+      "Malware Protection and Custom Execution Blocking",
+      "Malware Protection and Windows Anti-Malware Execution Blocking",
+      "Behavior-Based Threat Prevention sliders and Advanced Remediation Actions"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q8｜PDF 第25頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 8,
+    "sourcePage": 25,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 203,
+    "question": "When would the No Action option be assigned to a hash in IOC Management?",
+    "choices": [
+      "When you want to add the indicator to your blocklist and show it as a detection",
+      "There is no such option as No Action available in the Falcon console",
+      "When you want to add the indicator to your allowlist, but not detect it",
+      "When you want to save the indicator for later action, but do not want to block or allow it at this time"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第2組 Q9｜PDF 第26頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 9,
+    "sourcePage": 26,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 204,
+    "question": "What is the recommended approach for managing host groups over time?",
+    "choices": [
+      "Create groups based on IP ranges",
+      "Create separate groups for each department",
+      "Minimize the number of groups",
+      "Maintain multiple overlapping host groups"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第2組 Q10｜PDF 第26頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 10,
+    "sourcePage": 26,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 205,
+    "question": "You have created a new static host group to test a newly created sensor update policy, and need to add 500 servers into the group. You want to upload a list of hosts to Falcon for automatic addition into the group. What file format must the list be for this to be successfully accomplished?",
+    "choices": [
+      "TXT",
+      "XLSX",
+      "JSON",
+      "PDF"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q11｜PDF 第27頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 11,
+    "sourcePage": 27,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 206,
+    "question": "What are the two automated triggers that cause a Fusion SOAR workflow to run?",
+    "choices": [
+      "Incident and detections triggers",
+      "Condition and action triggers",
+      "Event and scheduled triggers",
+      "Event and action triggers"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第2組 Q12｜PDF 第27頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 12,
+    "sourcePage": 27,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 207,
+    "question": "What prevention policy setting prevents sensor-related files, folders, and registry objects from being renamed or deleted?",
+    "choices": [
+      "Sensor Tampering Protection",
+      "Host Modification Protection",
+      "System Configuration Protection",
+      "Sensor Modification Protection"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q13｜PDF 第28頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 13,
+    "sourcePage": 28,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 208,
+    "question": "Your organization has determined that your cybersecurity architect needs to be notified via email whenever Falcon generates detections of a medium severity or higher. Additionally, the architect should be notified about any incidents with a CrowdScore of 1.0 or higher. What can the Falcon Administrator do to ensure the architect is properly alerted?",
+    "choices": [
+      "Create a custom Fusion SOAR workflow to send an email every time a new detection or incident is created",
+      "Create a new Falcon user for the architect and assign the Detections and Exceptions Manager role so they are automatically notified for the new detections and incidents",
+      "Create a new Falcon user for the architect then create and assign a custom Falcon user role so they are automatically notified for the new detections and emails",
+      "Add the architect's email address to the manage list for detection and incident emails from the General settings menu"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第2組 Q14｜PDF 第28頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 14,
+    "sourcePage": 28,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 209,
+    "question": "Your leadership wants controls in place for immediate action on any OverWatch detections. What should you do to ensure the host is contained quickly and notifies the appropriate staff?",
+    "choices": [
+      "Create a Fusion SOAR workflow to trigger on an OverWatch detection and set it to block the detection",
+      "Create a Fusion SOAR workflow to contain the host and email the OverWatch team",
+      "Create a Fusion SOAR workflow to create a detection for OverWatch and email the SOC team",
+      "Create a Fusion SOAR workflow using the OverWatch playbook to contain the host and email the SOC team"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第2組 Q15｜PDF 第29頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 15,
+    "sourcePage": 29,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 210,
+    "question": "You are tasked with creating a \"Workstations\" host group to encompass all workstations in your environment. Which dynamic grouping criteria will most efficiently accomplish this task?",
+    "choices": [
+      "Platform Windows",
+      "OU Workstation",
+      "Type: Workstation",
+      "Grouping Tags Workstation"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第2組 Q16｜PDF 第29頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 16,
+    "sourcePage": 29,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 211,
+    "question": "What is true about User Accounts created by the Falcon Administrator?",
+    "choices": [
+      "By default, all User Accounts are created with the Falcon Analyst role",
+      "All User Accounts must start with the domain identifier and number",
+      "All User Accounts must be created with an email address from the list of approved domains",
+      "All new User Accounts are created using an employee identification number (EID)"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第2組 Q17｜PDF 第30頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 17,
+    "sourcePage": 30,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 212,
+    "question": "Where can you find the history of the successes and failures for any Fusion SOAR workflows?",
+    "choices": [
+      "Falcon UI Audit Trail",
+      "Workflow Audit log",
+      "Custom Alert History",
+      "Workflow Execution log"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第2組 Q18｜PDF 第30頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 18,
+    "sourcePage": 30,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 213,
+    "question": "What are the three required parts of a Fusion SOAR workflow condition?",
+    "choices": [
+      "Parameter, operator, and value",
+      "Operator, value, and source",
+      "Alert, action, and schedule",
+      "Trigger, parameter, and alert"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q19｜PDF 第31頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 19,
+    "sourcePage": 31,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 214,
+    "question": "A new prevention policy has been created for assignment to the group named \"Servers\". When you try to apply the policy, the \"Servers\" group is not available. What is the most likely reason the group is not available?",
+    "choices": [
+      "The \"Servers\" group must be disabled first",
+      "Host type was not defined correctly within the prevention policy",
+      "The \"Servers\" group already has a prevention policy applied to it",
+      "The new prevention policy should be enabled first"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第2組 Q20｜PDF 第31頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 20,
+    "sourcePage": 31,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 215,
+    "question": "Which role allows a Falcon user to create Real Time Response Custom Scripts?",
+    "choices": [
+      "Real Time Responder - Active Responder",
+      "Real Time Responder - Administrator",
+      "Real Time Responder - Read Only Analyst",
+      "Real Time Responder - Read Only Analyst"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第2組 Q21｜PDF 第32頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 21,
+    "sourcePage": 32,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 216,
+    "question": "During a Windows system investigation via Real Time Response (RTR), and RTR Active Responder is unable to execute a custom powershell script for finding specific system artifacts. What is likely restricting the responder from executing the powershell script?",
+    "choices": [
+      "The responder requires the RTR Administrator role",
+      "Put-and-Run is not enabled in the response policy",
+      "Script-Based Execution Monitoring is not enabled in the response policy",
+      "Custom Scripts is not enabled in the response policy"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第2組 Q22｜PDF 第32頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 22,
+    "sourcePage": 32,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 217,
+    "question": "Where would you apply a configuration to allow IP addresses over which your hosts will always be allowed to communicate, even if a host is contained?",
+    "choices": [
+      "Maintenance Token",
+      "Response Policies",
+      "Containment Policy",
+      "IP Allowlist Management"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第2組 Q23｜PDF 第33頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 23,
+    "sourcePage": 33,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 218,
+    "question": "What action should you take to securely allow operating system update processes to occur during network containment?",
+    "choices": [
+      "Add sources to the Host Firewall policy",
+      "Add IPs of update sources to the Containment policy",
+      "Ensure all internal network IPs are allowed",
+      "Remove network containment to allow access"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第2組 Q24｜PDF 第33頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 24,
+    "sourcePage": 33,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 219,
+    "question": "What prevention policy setting prevents sensor-related files, folders, and registry objects from being renamed or deleted?",
+    "choices": [
+      "Host Modification Protection",
+      "Sensor Tampering Protection",
+      "System Configuration Protection",
+      "Sensor Modification Protection"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第2組 Q25｜PDF 第34頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 25,
+    "sourcePage": 34,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 220,
+    "question": "How are custom roles assigned to users to perform a specific action on a module?",
+    "choices": [
+      "Permissions are enabled in roles, and these roles are assigned to users",
+      "Permissions are assigned to users directly in user management",
+      "By adding each module to a role",
+      "Users get all permissions by default"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q26｜PDF 第34頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 26,
+    "sourcePage": 34,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 221,
+    "question": "What could cause your Windows host to be in Reduced Functionality Mode?",
+    "choices": [
+      "A sensor update policy was misconfigured",
+      "The device was network contained",
+      "The host lost internet connectivity",
+      "CrowdStrike has not certified the latest Windows update"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第2組 Q27｜PDF 第35頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 27,
+    "sourcePage": 35,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 222,
+    "question": "When creating your own Fusion SOAR workflow based on an Event trigger, which additional option will refine the trigger?",
+    "choices": [
+      "Parameter",
+      "Condition",
+      "Filter",
+      "Trigger Details"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第2組 Q28｜PDF 第35頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 28,
+    "sourcePage": 35,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 223,
+    "question": "A host has been Network contained with Falcon and you have been asked to update the Operating System with zero day patches. You have tried using your patch update systems for this task, but the jobs fail. Which configuration steps in the Falcon UI will allow these activities?",
+    "choices": [
+      "Remove Host containment and update the host with all patches",
+      "Create a Containment Policy that allow lists the Fully Qualified name of your patch management tools",
+      "Create a Firewall Policy that allow lists your patch management tools",
+      "Create a Containment Policy that allow lists the specific IP addresses of your patch management tools"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第2組 Q29｜PDF 第36頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 29,
+    "sourcePage": 36,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 224,
+    "question": "What uses Regex to create a detection or take a preventative action?",
+    "choices": [
+      "Custom IOC",
+      "Custom IOA",
+      "Machine Learning Exclusion",
+      "Sensor Visibility Exclusion"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q30｜PDF 第36頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 30,
+    "sourcePage": 36,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 225,
+    "question": "What type of information is provided in sensor health report?",
+    "choices": [
+      "User login history",
+      "Local performance metrics",
+      "Current operational status",
+      "Network traffic patterns"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第2組 Q31｜PDF 第37頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 31,
+    "sourcePage": 37,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 226,
+    "question": "What is the primary concern with Windows sensors going into Reduced Functionality Mode?",
+    "choices": [
+      "The hosts have been powered off or otherwise cannot communicate with the Falcon cloud",
+      "The operating systems on these hosts have crashed",
+      "The sensors are unable to report any of their recorded events",
+      "The sensors do not have full visibility into all events occurring on the host"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第2組 Q32｜PDF 第37頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 32,
+    "sourcePage": 37,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 227,
+    "question": "Your development team is working on a new enterprise application, but Falcon starts creating alerts during testing. The alert points to \"C:\\Users\\Bob\\DevCode\\felix.dll\". In the detection, you see that it is triggering only on a specific Falcon IOA. What would be the best course of action for this situation?",
+    "choices": [
+      "Create a Custom IOC and set it to \"Allow\" for \"C:\\Users\\Bob\\DevCode\\felix.dll\"",
+      "Create an IOA exclusion for \"C:\\Users\\Bob\\DevCode\\felix.dll\"",
+      "Create a sensor visibility exclusion for \"C:\\Users\\Bob\\DevCode\\felix.dll\"",
+      "Manually turn off the built-in IOA through prevention policies"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第2組 Q33｜PDF 第38頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 33,
+    "sourcePage": 38,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 228,
+    "question": "How are prevention policies assigned to hosts in the Falcon platform?",
+    "choices": [
+      "Through IP address ranges",
+      "Through direct host assignment",
+      "Through host group membership",
+      "Through manual configuration"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第2組 Q34｜PDF 第38頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 34,
+    "sourcePage": 38,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 229,
+    "question": "Which setting inside the Sensor Update Policy prevents unauthorized uninstallation?",
+    "choices": [
+      "Uninstall and Maintenance Protection",
+      "Sensor Version Control Protection",
+      "Installation and Maintenance Protection",
+      "Update and Management Protection"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q35｜PDF 第39頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 35,
+    "sourcePage": 39,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 230,
+    "question": "In order to prevent duplicate Agent IDs, what install parameter should be used on VMs to be used as persistent clones?",
+    "choices": [
+      "NO_START=1",
+      "VM=True",
+      "ProvNoWait=1",
+      "VDI=true"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第2組 Q36｜PDF 第39頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 36,
+    "sourcePage": 39,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 231,
+    "question": "Excluding mobile devices, what kind of hosts can be contained in Falcon?",
+    "choices": [
+      "Windows, Linux, and MacOS hosts running the Falcon sensor",
+      "Windows and Linux hosts running the Falcon sensor",
+      "Windows and MacOS hosts running the Falcon sensor",
+      "Windows, Linux, and container hosts running the Falcon sensor"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q37｜PDF 第40頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 37,
+    "sourcePage": 40,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 232,
+    "question": "To test a new Falcon sensor version, you have created a new sensor update policy and two separate dynamic host groups. One group contains all test Windows servers. The other group contains all of your Windows servers. The new policy was applied to only the test Windows servers host group. What is required to safely and successfully test your new sensor update policy on only your test Windows servers?",
+    "choices": [
+      "The new policy must be enabled and assigned a precedence that is higher when compared to the policy assigned to all Windows servers",
+      "The new Falcon sensor version should be manually installed by you on every test Windows server before ever enabling and assigning the new policy",
+      "The new policy must be enabled and assigned a precedence that is lower when compared to the policy assigned to all Windows servers",
+      "The new Falcon sensor version should be manually uninstalled by you on every test Windows server before ever enabling and assigning the new policy"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q38｜PDF 第40頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 38,
+    "sourcePage": 40,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 233,
+    "question": "After successfully installing Falcon on a new employee's laptop, you notice that the machine is assigned the default prevention policy instead of the custom prevention policy you created. You verify that the Falcon sensor is functioning properly, and you confirm that the custom policy is enabled and successfully running on more than 1,000 other Falcon hosts. What is the likely cause of this issue?",
+    "choices": [
+      "The laptop is not a member of a host group assigned to the custom policy",
+      "A prompt to apply the new prevention policy was manually declined",
+      "Falcon requires a 24-hour waiting period to apply custom policies to newly installed hosts",
+      "A host-based firewall rule is preventing the custom policy from applying successfully"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q39｜PDF 第41頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 39,
+    "sourcePage": 41,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 234,
+    "question": "Which report in Falcon can be used to determine the volume of blocked activity at a different prevention policy setting?",
+    "choices": [
+      "Falcon Prevention Policy Debug",
+      "Machine Learning Prevention Monitoring",
+      "Prevention Policy Audit Trail"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第2組 Q40｜PDF 第41頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 40,
+    "sourcePage": 41,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 235,
+    "question": "When using Microsoft Windows, what command verifies that a Falcon Sensor is running?",
+    "choices": [
+      "netstat.exe -f",
+      "sc.exe query falcon",
+      "cswindiag.exe -status",
+      "sc.exe query csagent"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第2組 Q41｜PDF 第42頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 41,
+    "sourcePage": 42,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 236,
+    "question": "You can create Fusion SOAR workflows to precisely define the actions you want Falcon to perform in response to incidents. Which three items must be defined in every trigger so that it executes successfully?",
+    "choices": [
+      "Rule Type, Filter, Objective",
+      "Rule Type, Condition, Action",
+      "Trigger, Condition, Action",
+      "Trigger, Filter, Objective"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第2組 Q42｜PDF 第42頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 42,
+    "sourcePage": 42,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 237,
+    "question": "You need to be aware of which policies are the most used as new hosts are being added to your CID. Where will you find a review of the top-ten sensor update, prevention, and device control policies?",
+    "choices": [
+      "Executive Summary",
+      "Managed Assets dashboard",
+      "Sensor Policy Daily report"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第2組 Q43｜PDF 第43頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 43,
+    "sourcePage": 43,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 238,
+    "question": "An inactive host that does not contact the Falcon cloud will be automatically removed from the Host Management and Trash pages after how many days?",
+    "choices": [
+      "75 Days",
+      "60 Days",
+      "90 Days",
+      "45 Days"
+    ],
+    "answer": 3,
+    "source": "CCFA_200b｜第2組 Q44｜PDF 第43頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 44,
+    "sourcePage": 43,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 239,
+    "question": "What page provides a count of new Reduced Functionality Mode (RFM) sensors by day?",
+    "choices": [
+      "Support and resources",
+      "Hosts Overview",
+      "Sensor Health",
+      "Activity Overview"
+    ],
+    "answer": 2,
+    "source": "CCFA_200b｜第2組 Q45｜PDF 第44頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 45,
+    "sourcePage": 44,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 240,
+    "question": "What happens to detections in the console after clicking \"Disable Detections\" for a host from within the Host Management page?",
+    "choices": [
+      "The detections for the host are removed from the console immediately",
+      "Existing detections for the host remain",
+      "New detections are disabled for 30 days",
+      "All detection data for the host is deleted and the host is hidden from view"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q46｜PDF 第44頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 46,
+    "sourcePage": 44,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 241,
+    "question": "How can you search for multiple hostnames at the same time via Host Management?",
+    "choices": [
+      "Enter the multiple hostnames in the Hostname filter separating each by a decimal",
+      "Enter the multiple hostnames in the Hostname filter separating each by a comma",
+      "Add the Multiple Hostnames filter and enter your list of hostnames",
+      "Add the Hostname filter multiple times and enter separate hostnames into each filter"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第2組 Q47｜PDF 第45頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 47,
+    "sourcePage": 45,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 242,
+    "question": "What happens when a Falcon Sensor on a Linux host enters Reduced Functionality Mode?",
+    "choices": [
+      "RFM sensors on Linux hosts only send detection information to the Falcon Console. Event processing is disabled",
+      "RFM sensors on Linux hosts stop processing both events and detections. Sensors send basic status information to the Falcon Console",
+      "RFM sensors on Linux hosts continue to process events and detections for existing policies but cannot get policy updates from the Falcon Console",
+      "RFM sensors on Linux hosts stop processing events and detections but continue to send log data into Falcon"
+    ],
+    "answer": 1,
+    "source": "CCFA_200b｜第2組 Q48｜PDF 第45頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 48,
+    "sourcePage": 45,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  },
+  {
+    "id": 243,
+    "question": "There are a significant number of false positive detections from your developers that are getting blocked and quarantined by Falcon. What Indicator of Compromise (IOC) action would be the best option?",
+    "choices": [
+      "Allow",
+      "Detect Only",
+      "Prevent",
+      "No action"
+    ],
+    "answer": 0,
+    "source": "CCFA_200b｜第2組 Q49｜PDF 第46頁",
+    "sourceGroup": 2,
+    "sourceQuestion": 49,
+    "sourcePage": 46,
+    "explanation": "答案依 CCFA_200b_dump.pdf 的綠色 Correct answer 標示收錄。"
+  }
+];
+
+const el = (sel)=>document.querySelector(sel);
+const quizEl = el('#quiz');
+const scoreBanner = el('#scoreBanner');
+const modeEl = el('#mode');
+const countEl = el('#count');
+const toggleReviewBtn = el('#toggleReviewBtn');
+const confirmBtn = el('#confirmBtn');
+const nextBtn = el('#nextBtn');
+const submitBtn = el('#submitBtn');
+const prevBtn = el('#prevBtn');
+const footerCard = el('#footerCard');
+const rangeFromEl = el('#rangeFrom');
+const rangeToEl = el('#rangeTo');
+const searchWrap = el('#searchWrap');
+const searchInput = el('#searchInput');
+const searchBtn = el('#searchBtn');
+const clearSearchBtn = el('#clearSearchBtn');
+const countWrap = el('#countWrap');
+const rangeWrap = el('#rangeWrap');
+const toggleOriginal = el('#toggleOriginal');
+
+let started = false;
+let order = [];
+let answers = {};
+
+function updateSubmitState(){
+  // Lock submit button until every question has an answer
+  const allAnswered = started && order.length>0 && order.every((q,i)=> answers[i]!==undefined && answers[i]!==null);
+  submitBtn.classList.toggle('disabled', !allAnswered);
+  submitBtn.disabled = !allAnswered;
+  submitBtn.setAttribute('aria-disabled', String(!allAnswered));
+  submitBtn.title = allAnswered ? '' : '尚有未作答題目，完成全部題目後才能交卷';
+
+}
+let revealed = {};
+let locked = {};
+let idx = 0;
+
+const OLD_WRONG_KEY = "ccfa200_v1203_20260921_r2_wrong_ids";
+const OLD_MARK_KEY  = "ccfa200_v1203_20260921_r2_mark_ids";
+const REVIEW_KEY    = "ccfa200_v1203_20260921_r2_review_ids";
+const STATS_KEY     = "ccfa200_v1203_20260921_r2_stats";
+const SHOW_ORIG_KEY = "ccfa200_v1203_20260921_r2_show_orig";
+(function migrate(){
+  try {
+    const existing = JSON.parse(localStorage.getItem(REVIEW_KEY) || "[]");
+    if (!existing || existing.length === 0){
+      const oldWrong = JSON.parse(localStorage.getItem(OLD_WRONG_KEY) || "[]");
+      const oldMark  = JSON.parse(localStorage.getItem(OLD_MARK_KEY)  || "[]");
+      const merged = Array.from(new Set([...(oldWrong||[]), ...(oldMark||[])]));
+      if (merged.length){
+        localStorage.setItem(REVIEW_KEY, JSON.stringify(merged));
+      }
+    }
+  } catch(e){}
+})();
+const reviewSet = new Set(JSON.parse(localStorage.getItem(REVIEW_KEY) || "[]"));
+let stats = {};
+try { stats = JSON.parse(localStorage.getItem(STATS_KEY) || "{}"); } catch(e){ stats = {}; }
+try { toggleOriginal.checked = JSON.parse(localStorage.getItem(SHOW_ORIG_KEY) || "false"); } catch(e){}
+
+function updateHdr(){
+  el('#hdrMeta').textContent = `題庫：${BANK.length} 題｜複習清單：${reviewSet.size}`;
+  const mode = modeEl.value;
+  footerCard.classList.toggle('hidden', !started || mode==='review_list_all' || mode==='search');
+  countWrap.classList.toggle('hidden', !(mode==='exam' || mode==='review_list'));
+  rangeWrap.classList.toggle('hidden', !(mode==='exam' || mode==='review_list'));
+  searchWrap.classList.toggle('hidden', mode!=='search');
+  scoreBanner.classList.add('hidden');
+}
+
+function persist(){
+  localStorage.setItem(REVIEW_KEY, JSON.stringify(Array.from(reviewSet)));
+  localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  localStorage.setItem(SHOW_ORIG_KEY, JSON.stringify(toggleOriginal.checked));
+  updateHdr();
+}
+
+function applyRange(pool){
+  const fromV = parseInt(rangeFromEl.value||"");
+  const toV = parseInt(rangeToEl.value||"");
+  if(!isNaN(fromV) && !isNaN(toV)){
+    const lo = Math.min(fromV, toV);
+    const hi = Math.max(fromV, toV);
+    return pool.filter(q => (q.id||0) >= lo && (q.id||0) <= hi);
+  }
+  return pool;
+}
+
+function buildQStats(qid){
+  const s = stats[qid] || {attempts:0, correct:0, wrong:0};
+  return `<span class="qstats">【作答次數: ${s.attempts}｜答對: ${s.correct}｜答錯: ${s.wrong}】</span>`;
+}
+
+function cleanQuestion(text){
+  const re = /^\s*(question\s*#?\s*\d+\s*[:.)-]?\s*)/i;
+  return text.replace(re, '');
+}
+
+function computeBasePool(){
+  let base = [];
+  if (modeEl.value === 'review_list' || modeEl.value === 'review_list_all') {
+    base = BANK.filter(q=>reviewSet.has(q.id));
+  } else {
+    base = BANK.slice();
+  }
+  if (modeEl.value !== 'review_list_all' && modeEl.value !== 'search') base = applyRange(base);
+  return base;
+}
+
+function showPreStartSummary(){
+  const mode = modeEl.value;
+  const n = parseInt(countEl.value,10);
+  const base = computeBasePool();
+  const poolSize = base.length;
+  const fromV = rangeFromEl.value ? parseInt(rangeFromEl.value) : null;
+  const toV = rangeToEl.value ? parseInt(rangeToEl.value) : null;
+  const rangeTxt = (fromV && toV) ? `${Math.min(fromV,toV)}–${Math.max(fromV,toV)}` : '全部';
+  const willUse = (mode==='exam' || mode==='review_list') ? Math.min(n, poolSize) : poolSize;
+
+  const modeLabel = {exam:'Exam（考試模式）', review_list:'Review List（隨機）', review_list_all:'Review List（全部）', search:'Search'}[mode];
+
+  const lines = [
+    `<div>模式：<b>${modeLabel}</b></div>`,
+    (mode==='search') ? `<div>說明：本模式需輸入關鍵字後按「搜尋」。</div>` : '',
+    (mode!=='search' && mode!=='review_list_all') ? `<div>題號範圍：<b>${rangeTxt}</b></div>` : '',
+    `<div>可用題數：<b>${poolSize}</b></div>`,
+    (mode==='exam' || mode==='review_list') ? `<div>本次題數：<b>${willUse}</b></div>` : '',
+  ].join('');
+
+  quizEl.innerHTML = `
+    <div class="card">
+      <div class="summary">
+        <div style="font-weight:600;">開始前摘要</div>
+        ${lines}
+        <div style="margin-top:8px; display:flex; gap:8px;">
+          <button class="btn" id="confirmStartBtn">確認開始</button>
+          <button class="btn secondary" id="cancelStartBtn">取消</button>
+        </div>
+      </div>
+    </div>`;
+
+  el('#confirmStartBtn').addEventListener('click', ()=>{
+    started = true;
+    startActual();
+  });
+  el('#cancelStartBtn').addEventListener('click', ()=>{
+    started = false;
+    render();
+  });
+}
+
+function start(){ started = false; showPreStartSummary(); }
+
+function startActual(){
+  answers = {}; revealed = {}; locked = {}; idx = 0;
+  scoreBanner.classList.add('hidden');
+
+  const base = computeBasePool();
+
+  if (modeEl.value === 'review_list_all' || modeEl.value === 'search') {
+    order = base.slice().sort((a,b)=> (a.id||0)-(b.id||0));
+    started = true;
+    render();
+  } else {
+    const n = parseInt(countEl.value,10);
+    order = base.slice();
+    order = order.sort(()=>Math.random()-0.5).slice(0, Math.min(n, order.length)).map(q => ({...q}));
+    if (modeEl.value === 'exam'){
+      order = order.map(q => {
+        const idxs = q.choices.map((_, i) => i);
+        idxs.sort(()=>Math.random()-0.5);
+        const newChoices = idxs.map(i => q.choices[i]);
+        const newAnswer = idxs.indexOf(q.answer);
+        return {...q, choices:newChoices, answer:newAnswer};
+      });
+    }
+    started = true;
+    render();
+  }
+}
+
+function onPick(i, choice){
+  if (!order[i] || !Number.isInteger(choice) || choice < 0 || choice >= order[i].choices.length) return;
+  if (!started) return;
+  if (locked[i]) return;
+  answers[i] = choice;
+  render();
+}
+
+function confirmCurrent(){
+  if (!started) return;
+  const q = order[idx];
+  if (!q) return;
+  if (revealed[idx]) return;
+  const a = answers[idx];
+  if (a === undefined) return;
+  revealed[idx] = true;
+  locked[idx] = true;
+  if (!stats[q.id]) stats[q.id] = {attempts:0, correct:0, wrong:0};
+  stats[q.id].attempts += 1;
+  const outcome = (a === q.answer) ? 'correct' : 'wrong';
+  stats[q.id][outcome] += 1;
+  if (outcome === 'wrong') reviewSet.add(q.id);
+  persist();
+  render();
+  updateSubmitState();
+}
+
+
+function goNext(){ if (started && revealed[idx] && idx < order.length - 1){ idx += 1; render(); } }
+function goPrev(){ if (started && idx > 0){ idx -= 1; render(); } }
+
+function render(){
+  const mode = modeEl.value;
+  updateHdr();
+  if (!started){
+    quizEl.innerHTML = `<div class="card"><div class="qtxt">按「開始」後會先顯示本次小測驗摘要。</div></div>`;
+    updateSubmitState();
+    return;
+  }
+  if (mode === 'review_list_all'){
+    if(order.length===0){
+      quizEl.innerHTML = `<div class="card"><div class="qtxt">目前「複習清單」是空的。</div></div>`;
+      return;
+    }
+    quizEl.innerHTML = order.map((q,i)=> renderListCard(q, i, order.length)).join("");
+    wireListControls();
+    return;
+  }
+  if (mode === 'search'){
+    const query = searchInput.value.trim();
+    if(!query){
+      quizEl.innerHTML = `<div class="card"><div class="qtxt">請輸入關鍵字再按「搜尋」。支援多關鍵字（以空白分隔）。</div></div>`;
+      return;
+    }
+    const toks = query.split(/\s+/).map(s=>s.toLowerCase());
+    const matches = order.filter(q=> toks.every(t=> (q.question+" "+q.choices.join(" ")).toLowerCase().includes(t)));
+    if (matches.length===0){
+      quizEl.innerHTML = `<div class="card"><div class="qtxt">沒有符合的題目。</div></div>`;
+      return;
+    }
+    quizEl.innerHTML = matches.map((q,i)=> renderListCard(q, i, matches.length)).join("");
+    wireListControls();
+    return;
+  }
+  const q = order[idx];
+  if(!q){
+    quizEl.innerHTML = `<div class="card"><div class="qtxt">沒有符合條件的題目。請調整題號範圍或切換模式。</div></div>`;
+    return;
+  }
+  const a = answers[idx];
+  const isRevealed = !!revealed[idx];
+  const isLocked = !!locked[idx];
+  const choiceHTML = q.choices.map((c,k)=>{
+    const chosen = (a === k);
+    let cls = "choice";
+    if (isLocked) cls += " locked";
+    if (chosen) cls += " selected";
+    if (isRevealed){
+      if (k === q.answer) cls += " correct";
+      if (chosen && k !== q.answer) cls += " wrong";
+    }
+    return `<div class="${cls}" data-k="${k}"><b>${(k+1)}</b>. ${c.replace(/</g,"&lt;")}</div>`;
+  }).join("");
+  const origIdHtml = toggleOriginal.checked ? `<div class="pill">原始ID #${q.id}</div>` : "";
+  const cleaned = cleanQuestion(q.question).replace(/</g,"&lt;");
+  quizEl.innerHTML = `
+    <div class="card">
+      <div class="qhead">
+        <div class="qid">題目 ${idx+1} / ${order.length}</div>
+        ${origIdHtml}
+        ${q.source ? `<div class="pill">#${q.id} · ${q.source}</div>` : ""}
+      </div>
+      <div class="qstats">${buildQStats(q.id)}</div>
+      <div class="qtxt">${cleaned}</div>
+      <div class="choices">${choiceHTML}</div>
+    </div>`;
+  quizEl.querySelectorAll('.choice').forEach(ch=>{
+    ch.addEventListener('click', ()=>{
+      const k = parseInt(ch.dataset.k);
+      onPick(idx, k);
+    });
+  });
+  prevBtn.classList.toggle('disabled', idx===0);
+  nextBtn.classList.toggle('disabled', idx===order.length-1 || !isRevealed);
+  confirmBtn.classList.toggle('disabled', isRevealed || a===undefined);
+  const inReview = reviewSet.has(q.id);
+  toggleReviewBtn.classList.toggle('active', inReview);
+  toggleReviewBtn.textContent = inReview ? '已在複習清單（5）' : '加入/移出複習清單（5）';
+  try{ confirmBtn.blur(); nextBtn.blur(); prevBtn.blur(); toggleReviewBtn.blur(); }catch(e){}
+}  updateSubmitState();
+
+
+function renderListCard(q, i, total){
+  const s = stats[q.id] || {attempts:0, correct:0, wrong:0};
+  const choices = q.choices.map((c,k)=>{
+    const isCorrect = (k===q.answer);
+    const cls = "choice" + (isCorrect ? " correct":"");
+    return `<div class="${cls}"><b>${(k+1)}</b>. ${c.replace(/</g,"&lt;")}</div>`;
+  }).join("");
+  const origIdHtml = toggleOriginal.checked ? `<div class="pill">原始ID #${q.id}</div>` : "";
+  const cleaned = cleanQuestion(q.question).replace(/</g,"&lt;");
+  return `
+  <div class="card" data-qid="${q.id}">
+    <div class="qhead">
+      <div class="qid">題目 ${i+1} / ${total}</div>
+      ${origIdHtml}
+        ${q.source ? `<div class="pill">#${q.id} · ${q.source}</div>` : ""}
+    </div>
+    <div class="qstats">【作答次數: ${s.attempts}｜答對: ${s.correct}｜答錯: ${s.wrong}】</div>
+    <div class="qtxt">${cleaned}</div>
+    <div class="choices">${choices}</div>
+    <div class="inline-controls" style="margin-top:10px;">
+      <button class="btn danger" data-action="removeReview">移出複習清單</button>
+    </div>
+  </div>`;
+}
+
+function wireListControls(){
+  quizEl.querySelectorAll('.card').forEach(card=>{
+    const qid = parseInt(card.dataset.qid,10);
+    const removeBtn = card.querySelector('[data-action="removeReview"]');
+    if(removeBtn){
+      removeBtn.addEventListener('click', ()=>{
+        reviewSet.delete(qid);
+        persist();
+        card.remove();
+      });
+    }
+  });
+}
+
+function submit(){
+  if (!started) return;
+  if (submitBtn.disabled || submitBtn.classList.contains('disabled')) return;
+  const total = order.length;
+  let correct = 0;
+  let unanswered = 0;
+  const results = [];
+  order.forEach((q,i)=>{
+    const aRaw = answers[i];
+    const hasAnswer = (aRaw !== undefined && aRaw !== null);
+    const a = hasAnswer ? Number(aRaw) : undefined;
+    const ok = hasAnswer && (a === Number(q.answer));
+    if (!hasAnswer) unanswered += 1;
+    if (ok) correct += 1;
+
+    // Update per-question stats at submission time (so you don't need to press 「確認」 to record attempts)
+    if (!stats[q.id]) stats[q.id] = {attempts:0, correct:0, wrong:0};
+    if (hasAnswer){
+      stats[q.id].attempts += 1;
+      if (ok) stats[q.id].correct += 1;
+      else stats[q.id].wrong += 1;
+    }
+results.push({q, a, ok, hasAnswer});
+  });
+  persist();
+
+  const pct = (total ? (correct/total*100) : 0);
+  const note = unanswered ? `｜未作答：${unanswered}` : '';
+  scoreBanner.textContent = `本次成績：${correct}/${total}（${pct.toFixed(1)}%）${note}`;
+  scoreBanner.classList.remove('hidden');
+
+  quizEl.innerHTML = results.map(({q,a,ok,hasAnswer},i)=>{
+    const s = stats[q.id] || {attempts:0, correct:0, wrong:0};
+    const choices = q.choices.map((c,k)=>{
+      const isCorrect = (k===q.answer);
+      const chosen = (a === k);
+      let cls = "choice";
+      if (isCorrect) cls += " correct";
+      if (chosen && !isCorrect) cls += " wrong";
+      if (chosen) cls += " selected";
+      return `<div class="${cls}"><b>${(k+1)}</b>. ${c.replace(/</g,"&lt;")}</div>`;
+    }).join("");
+    const origIdHtml = toggleOriginal.checked ? `<div class="pill">原始ID #${q.id}</div>` : "";
+    const cleaned = cleanQuestion(q.question).replace(/</g,"&lt;");
+    const showRemove = (!ok) || reviewSet.has(q.id);
+    const controls = showRemove ? `<div class="inline-controls" style="margin-top:10px;">
+        <button class="btn danger" data-action="removeReview" data-qid="${q.id}">移出複習清單</button>
+      </div>` : "";
+    const warn = (!hasAnswer) ? `<div class="pill" style="margin-top:10px; border-color:#a33; background:#2a1111;">本題未作答（以錯誤計）</div>` : "";
+    return `
+    <div class="card" data-qid="${q.id}">
+      <div class="qhead">
+        <div class="qid">題目 ${i+1} / ${order.length}</div>
+        ${origIdHtml}
+        ${q.source ? `<div class="pill">#${q.id} · ${q.source}</div>` : ""}
+      </div>
+      <div class="qstats">【作答次數: ${s.attempts}｜答對: ${s.correct}｜答錯: ${s.wrong}】</div>
+      <div class="qtxt">${cleaned}</div>
+      <div class="choices">${choices}</div>
+      ${warn}
+      ${controls}
+    </div>`;
+  }).join("");
+
+  quizEl.querySelectorAll('[data-action="removeReview"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const qid = parseInt(btn.getAttribute('data-qid'),10);
+      reviewSet.delete(qid);
+      persist();
+      btn.closest('.card')?.remove();
+    });
+  });
+}
+
+function toggleReviewForCurrent(){
+  const q = order[idx];
+  if(!q) return;
+  if (reviewSet.has(q.id)) reviewSet.delete(q.id);
+  else reviewSet.add(q.id);
+  persist();
+  render();
+}
+toggleReviewBtn.addEventListener('click', (e)=>{ toggleReviewForCurrent(); try{e.currentTarget.blur();}catch(err){} });
+
+document.addEventListener('keydown', (e)=>{
+  const t = e.target;
+  const tag = (t && t.tagName) ? t.tagName.toLowerCase() : '';
+  const isTyping = (tag==='input' || tag==='textarea' || tag==='select' || (t && t.isContentEditable));
+  if (isTyping) return;
+
+  if (!started) return;
+  const mode = modeEl.value;
+  if (mode==='exam' || mode==='review_list'){
+    if (['1','2','3','4'].includes(e.key)){
+      e.preventDefault(); e.stopPropagation();
+      onPick(idx, parseInt(e.key)-1);
+    } else if (e.key === '5' && mode==='exam'){
+      e.preventDefault(); e.stopPropagation();
+      toggleReviewForCurrent();
+    } else if (e.key === 'Enter'){
+      e.preventDefault(); e.stopPropagation();
+      confirmCurrent();
+    } else if (e.key === 'ArrowRight'){
+      e.preventDefault(); e.stopPropagation();
+      goNext();
+    } else if (e.key === 'ArrowLeft'){
+      e.preventDefault(); e.stopPropagation();
+      goPrev();
+    }
+  }
+});
+
+el('#startBtn').addEventListener('click', ()=>{ started=false; showPreStartSummary(); });
+el('#resetBtn').addEventListener('click', ()=>{
+  answers = {}; revealed = {}; locked = {}; idx = 0; started = false;
+  reviewSet.clear();
+  stats = {};
+  localStorage.removeItem(REVIEW_KEY);
+  localStorage.removeItem(STATS_KEY);
+  persist();
+  render();
+});
+prevBtn.addEventListener('click', goPrev);
+nextBtn.addEventListener('click', goNext);
+confirmBtn.addEventListener('click', confirmCurrent);
+submitBtn.addEventListener('click', submit);
+el('#exportReviewBtn').addEventListener('click', ()=>{
+  const ids = Array.from(reviewSet);
+  const blob = new Blob([JSON.stringify(ids, null, 2)], {type:"application/json"});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ccfa200_v1203_20260921_r2_review_ids.json';
+  a.click();
+});
+
+modeEl.addEventListener('change', ()=>{
+  answers = {}; revealed = {}; locked = {}; idx = 0;
+  order = [];
+  scoreBanner.classList.add('hidden');
+  const mode = modeEl.value;
+  if (mode === 'review_list_all') {
+    started = true;
+    const base = BANK.filter(q=>new Set(JSON.parse(localStorage.getItem('ccfa200_v1203_20260921_r2_review_ids')||'[]')).has(q.id));
+    order = base.slice().sort((a,b)=> (a.id||0)-(b.id||0));
+    render();
+  } else {
+    started = false;
+    render();
+  }
+});
+
+toggleOriginal.addEventListener('change', ()=>{ persist(); render(); });
+searchBtn.addEventListener('click', ()=>{
+  if (!started){ started=true; startActual(); }
+  order = BANK.slice().sort((a,b)=> (a.id||0)-(b.id||0));
+  render();
+});
+clearSearchBtn.addEventListener('click', ()=>{
+  searchInput.value = "";
+  render();
+});
+
+updateHdr();
+render();
+</script>
+</body>
+</html>
