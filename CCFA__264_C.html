@@ -3814,7 +3814,7 @@ const BANK = [
       "Temporarily disable detections for the server in Host Management and re-enable after the test is done",
       "Use Real Time Response to kill the offending process on the server"
     ],
-    "answer": 1,
+    "answer": 2,
     "explanation": "The correct answer is to implement a Sensor Visibility Exclusion on the particular host. An SVE suppresses visibility for specified activity so that known, approved testing does not flood the Falcon console with detections or events that leadership does not need to track. This is more targeted than disabling all detections on a host and more appropriate than generating additional workflow notifications. Using RTR to kill the process would interfere with the authorized penetration test. Temporarily disabling detections may remove existing detections and suppress all detection reporting from that host, which is broader and riskier than applying a scoped exclusion. CCFA exclusion guidance stresses selecting the narrowest exclusion type that matches the operational requirement while preserving meaningful security visibility elsewhere.",
     "answerNote": "題庫答案有差異，另見第 183 題。本題沿用各版本原標示，尚未驗證正誤。",
     "zhQuestion": "某台伺服器上的滲透測試相關偵測，目前在主控台產生了數千筆項目。管理階層不需要在 Falcon 中追蹤這些偵測。應如何讓團隊專注於更相關的偵測？",
